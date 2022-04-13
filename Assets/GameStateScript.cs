@@ -14,6 +14,8 @@ public class GameState : MonoBehaviour
     private List<Territories> currentMapState;
     private List<Regions> regions;
     private List<Agents> agentsList;
+
+    private List<int> agentSpawnTerritoryIndexes = new List<int>();
     
 
     //Dict that stores the agentID as a key and the List<Territories for that agent, makes for faster indexing
@@ -40,9 +42,19 @@ public class GameState : MonoBehaviour
         
         foreach (Agents agent in agentsList)
         {
-            Territories startingTerritory = currentMapState[r.Next(currentMapState.Count - 1)];
-            startingTerritory.occupier = agent.agentName;
-            startingTerritory.armies = 5;
+            int idx = -1;
+            while (idx == -1)
+            {
+                // This is to prevent the agents from spawning in the same territory, and thus crashing the game :/
+                int tempIdx = r.Next(currentMapState.Count - 1);
+                if (!agentSpawnTerritoryIndexes.Contains(idx))
+                {
+                    Territories startingTerritory = currentMapState[tempIdx];
+                    startingTerritory.occupier = agent.agentName;
+                    startingTerritory.armies = 5;
+                    idx = tempIdx;
+                }
+            }
         }
     }
     
@@ -127,7 +139,7 @@ public class GameState : MonoBehaviour
             occupiers.Add(region.occupier);
         }
         int uniqueOccupiers = occupiers.Distinct().Count();
-        if (uniqueOccupiers == 1)
+        if (uniqueOccupiers == 1 && occupiers[0] != "unconquered")
         {
             EditorApplication.ExecuteMenuItem("Edit/Play");
         }
@@ -152,7 +164,7 @@ public class GameState : MonoBehaviour
 
         /**
          * CALLED BY an agent requesting to see their territories
-         * return COPY of territory list for this agent, preserving gameState
+         * return COPY of territory list for this abstractAgent, preserving gameState
          */
         public List<Territories> getTerritories(string agentName)
         {
@@ -168,10 +180,21 @@ public class GameState : MonoBehaviour
             
         }
 
-        
+        /**
+         * CALLED BY an agent requesting to see the regions on the map
+         * return a COPY of the region list for this abstractAgent, preserving gameState
+         **/
+        public List<Regions> getRegions()
+        {
+            List<Regions> regionsList = new List<Regions>(gameState.regions);
+            return regionsList;
+        }
+
+
+
         /**
          * CALLED BY an agent requesting to see their frontline, i.e. the territories that touch unconquered or enemy occupied territories
-         * return COPY of territory list for this agent, preserving gameState
+         * return COPY of territory list for this abstractAgent, preserving gameState
          */
         public List<Territories> getFrontLine(string agentName)
         {
@@ -204,7 +227,7 @@ public class GameState : MonoBehaviour
 
         
         /**
-         * CALLED BY an agent requesting to see how many armies they currently have based on regional bonuses
+         * CALLED BY an abstractAgent requesting to see how many armies they currently have based on regional bonuses
          */
         public int getArmies(string agentName)
         {
@@ -337,7 +360,6 @@ public class GameState : MonoBehaviour
                 
                 if (move.Item2.Count > currentMoveIdx)
                 {
-                    
                     int fromIndex = getTerritoryIndex(move.Item2[currentMoveIdx].fromTerritory);
                     int toIndex = getTerritoryIndex(move.Item2[currentMoveIdx].toTerritory);
 
@@ -356,7 +378,7 @@ public class GameState : MonoBehaviour
                         }
                     
                         // If agent is attacking another territory and has enough armies to overtake it
-                        else if (attackingArmies > toTerritory.armies)
+                        else if (attackingArmies >= toTerritory.armies)
                         {
                             fromTerritory.armies -= attackingArmies;
                             toTerritory.armies = attackingArmies - toTerritory.armies;

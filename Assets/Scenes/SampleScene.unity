@@ -476,11 +476,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapGenerationData:
-    numTerritories: 33
+    numTerritories: 37
     numRegions: 10
     pointsPerTerritory: 2
     height: 200
     width: 200
     smoothIterations: 33
     randomFillPercent: 46
-    seed: ewe
+    seed: ewesadfaq

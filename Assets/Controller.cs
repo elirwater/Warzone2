@@ -13,9 +13,10 @@ public class Controller : MonoBehaviour
     private MapGeneration mapState;
     private MapRendering mapRendering;
     private List<Agents> agents;
-    
-    private Agents testingAgent;
-    private Agents testingAgent2;
+
+
+    private Agents inGameAgent;
+
     
 
     [System.Serializable]
@@ -59,22 +60,22 @@ public class Controller : MonoBehaviour
         Invoke("updateMapForRendering", 1f);
         
         // We instantiate our agent
-        testingAgent = new TestingAgent();
-        testingAgent.agentName = "bert";
+        inGameAgent = new NonAdversarialBFS();
 
-        testingAgent2 = new TestingAgent();
-        testingAgent2.agentName = "alfred";
+
         
-        agents = new List<Agents>(){testingAgent, testingAgent2};
+        agents = new List<Agents>(){inGameAgent};
         
         
         // We then generate our GameState class which controls all aspects of the game
         gameStateObj = new GameState(territories, mapState.getRegions(), agents);
-         
-        // Now we assign our agent the same GameState object so then can make calls and query the gameState [NOTE: needs to change for multiple agents]
-        testingAgent.setAbstractAgentGameState(new GameState.AbstractAgentGameState(gameStateObj));
-        testingAgent2.setAbstractAgentGameState(new GameState.AbstractAgentGameState(gameStateObj));
-
+        
+        
+        // Now we assign our agent the same GameState object so then can make calls and query the gameState
+        foreach (Agents agent in agents)
+        {
+            agent.setAbstractAgentGameState(new GameState.AbstractAgentGameState(gameStateObj));
+        }
     }
 
 
@@ -111,11 +112,8 @@ public class Controller : MonoBehaviour
      */
     private void nextRound()
     {
-        
-        // NEW META: need to update the map after each stage -> otherwise new deployment doesn't affect attack
-        //1:
+
         gameStateObj.nextRound();
-  
 
         foreach (Agents agent in agents)
         {
@@ -126,26 +124,16 @@ public class Controller : MonoBehaviour
             deployMoves.Add((agent.agentName, deployMovesTestingAgent));
             gameStateObj.updateDeploy(deployMoves);
         }
-
-        //List<TransferMoves> transferMoves = testingAgent.generateTransferMoves();
-        List<AttackMoves> attackMovesTestingAgent = testingAgent.generateAttackMoves();
-        List<AttackMoves> attackMovesTestingAgent2 = testingAgent2.generateAttackMoves();
         
         List<(string, List<AttackMoves>)> attackMoves = new List<(string, List<AttackMoves>)>();
-        attackMoves.Add((testingAgent.agentName, attackMovesTestingAgent));
-        attackMoves.Add((testingAgent2.agentName, attackMovesTestingAgent2));
-        
-        
+        foreach (Agents agent in agents)
+        {
+            List<AttackMoves> agentAttackMoves = agent.generateAttackMoves();
+            attackMoves.Add((agent.agentName, agentAttackMoves));
+        }
         gameStateObj.updateAttack(attackMoves);
-        
-        //4:
+
         updateMapForRendering();
 
     }
-    
-    
-    
-   // private checkWinCondition
-    
-
 }

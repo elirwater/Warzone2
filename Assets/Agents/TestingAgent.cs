@@ -17,7 +17,6 @@ public class TestingAgent : Agents
     {
         List<DeployMoves> moves = new List<DeployMoves>();
         int targetTerritoryIdx = 0;
-
         
         while (armies > 0)
         {
