@@ -16,6 +16,7 @@ public class Controller : MonoBehaviour
 
 
     private Agents inGameAgent;
+    private Agents inGameAgent2;
 
     
 
@@ -60,7 +61,9 @@ public class Controller : MonoBehaviour
         Invoke("updateMapForRendering", 1f);
         
         // We instantiate our agent
-        inGameAgent = new NonAdversarialBFS();
+        inGameAgent = new MiniMaxAgent();
+        //inGameAgent2 = new MiniMaxAgent();
+        inGameAgent.agentName = "test1";
 
 
         
@@ -68,7 +71,7 @@ public class Controller : MonoBehaviour
         
         
         // We then generate our GameState class which controls all aspects of the game
-        gameStateObj = new GameState(territories, mapState.getRegions(), agents);
+        gameStateObj = new GameState(territories, mapState.getRegions(), agents, false);
         
         
         // Now we assign our agent the same GameState object so then can make calls and query the gameState
@@ -117,6 +120,7 @@ public class Controller : MonoBehaviour
 
         foreach (Agents agent in agents)
         {
+
             agent.nextRound();
             
             List<DeployMoves> deployMovesTestingAgent = agent.generateDeployMoves();

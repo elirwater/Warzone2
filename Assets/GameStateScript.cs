@@ -22,13 +22,25 @@ public class GameState : MonoBehaviour
     IDictionary<string, List<Territories>> territoriesByAgent = new Dictionary<string, List<Territories>>();
     
     
-    public GameState(List<Territories> startingMapState, List<Regions> startingRegionState, List<Agents> agents)
+    public GameState(List<Territories> startingMapState, List<Regions> startingRegionState, List<Agents> agents, bool fakeGameState)
     {
         currentMapState = startingMapState;
         regions = startingRegionState;
         agentsList = agents;
-        populateAgentsOnMap();
-        populateInitialTerritoriesByAgentDict();
+        
+        //Legit terrible solution
+        if (fakeGameState)
+        {
+            print(currentMapState.Count);
+            
+            populateInitialTerritoriesByAgentDict();   
+            populateTerritoriesByAgent();
+        }
+        else
+        {
+            populateAgentsOnMap();
+            populateInitialTerritoriesByAgentDict();   
+        }
     }
     
     
@@ -239,9 +251,6 @@ public class GameState : MonoBehaviour
                 {
                     foreach (Regions region in gameState.regions) 
                     {
-                        // TODO: this obviously doesn't make any sense, armies will grow infinetely
-                        // TODO: also getting negative army values, so make sure the attack is fine
-                        // need to re-calculate every round dumbass
                         if (agent.agentName == region.occupier)
                         {
                             finalArmiesValue += region.regionalBonusValue;
@@ -263,10 +272,12 @@ public class GameState : MonoBehaviour
         {
             
             private GameState gameState;
+            private AbstractAgentGameState abstractAgentGameState;
             
             public AgentGameState(AbstractAgentGameState gameState)
             {
                 this.gameState = gameState.gameState;
+                this.abstractAgentGameState = gameState;
             }
         
         
@@ -280,13 +291,112 @@ public class GameState : MonoBehaviour
                 Territories t2 = gameState.currentMapState[gameState.getTerritoryIndex(territory2)];
                 return Vector2.Distance(t1.centerCord, t2.centerCord);
             }
+            
+            
+            /**
+            * Returns a score based on the total number of armies this agent has plus the number of conquered territories
+            * This should be tweaked heuristically
+            * CALLED BY miniMaxAgent
+             */
+            public int generateScore(string agentName)
+            {
+                // REPEATED CODE, already exists in protected abstract agent class!
+                int finalArmiesValue = 5;
+                foreach (Agents agent in gameState.agentsList)
+                {
+
+                    if (agent.agentName == agentName)
+                    {
+                        foreach (Regions region in gameState.regions) 
+                        {
+                            if (agent.agentName == region.occupier)
+                            {
+                                finalArmiesValue += region.regionalBonusValue;
+                            }
+                        }
+                    }
+                }
+
+                return finalArmiesValue + gameState.territoriesByAgent[agentName].Count;
+            }
+
+
+            
+            public AgentGameState generateSuccessorGameState(DeployMoves dMove, AttackMoves aMove, string agentName)
+            {
+
+                List<Territories> newList = new List<Territories>(gameState.currentMapState.Count);
+
+                foreach (var t in gameState.currentMapState)
+                {
+                    newList.Add(new Territories(t.centerCord, t.territoryName, t.neighbors, t.regionName, t.occupier, t.armies));
+                }
+
+                GameState g = new GameState(newList, gameState.regions, gameState.agentsList, true);
+                //print(gameState.agentsList[1].agentName);
+                g.updateDeploy(new List<(string, List<DeployMoves>)>(){(agentName, new List<DeployMoves>(){dMove})});
+                g.updateAttack(new List<(string, List<AttackMoves>)>(){(agentName, new List<AttackMoves>(){aMove})});
+                
+                // A bit convuluded
+                AbstractAgentGameState abs = new AbstractAgentGameState(g);
+                return new AgentGameState(abs);
+            }
+
+            public List<Agents> getAgents()
+            {
+                return gameState.agentsList;
+            }
+            
+            
+            public List<(DeployMoves, AttackMoves)> generateLegalMoves(string agentName)
+            {
+                
+                // Generate a list of neighboring enemy territories (we are excluding internal troop transfers for recursive load issues)
+                // List is structured as fromTerritory -> toTerritory
+                List<(Territories, Territories)> neighboringEnemyTerritoriesTuple = new List<(Territories, Territories)>();
+                // Keeps track of attacking territories so only a given territory we own cannot attack multiple territories for deployment and attack simplicity
+                List<Territories> frontlineAttackingTerritories = new List<Territories>();
+                
+                foreach (Territories territory in abstractAgentGameState.getFrontLine(agentName))
+                {
+                    foreach (Territories neighboringTerritory in territory.neighbors)
+                    {
+                        if (!frontlineAttackingTerritories.Contains(territory) && neighboringTerritory.occupier != agentName)
+                        {
+                            frontlineAttackingTerritories.Add(territory);
+                            neighboringEnemyTerritoriesTuple.Add((territory, neighboringTerritory));
+                        }
+                        
+                    }
+                    //print(agentName);
+                    //print(territory.territoryName);
+                }
+
+                List<(DeployMoves, AttackMoves)> moves = new List<(DeployMoves, AttackMoves)>();
+                foreach ((Territories, Territories) territory in neighboringEnemyTerritoriesTuple)
+                {
+                    if (territory.Item1.armies + abstractAgentGameState.getArmies(agentName) >= territory.Item2.armies)
+                    {
+                        // Doing it like this to make everything much simpler
+
+                        DeployMoves dMove = new DeployMoves(territory.Item1.territoryName,
+                            abstractAgentGameState.getArmies(agentName));
+                        
+                        AttackMoves aMove = new AttackMoves(territory.Item1.territoryName, territory.Item2.territoryName,
+                            territory.Item1.armies + abstractAgentGameState.getArmies(agentName));
+                        moves.Add((dMove, aMove));   
+                    }
+                }
+                return moves;
+           
+            }
+            
+       
         }
         
     }
 
-
-
-
+    
 
     // TODO: GAME STATE SHOULD BE CHECKING THAT
     // 1) Moves are valid
@@ -302,6 +412,9 @@ public class GameState : MonoBehaviour
      */
     public void updateDeploy(List<(string, List<DeployMoves>)> movesPerAgent)
     {
+        
+        //print(territoriesByAgent.Count);
+
         foreach ((string, List<DeployMoves>) move in movesPerAgent)
         {
             string currentAgent = move.Item1;
@@ -398,6 +511,7 @@ public class GameState : MonoBehaviour
             currentMoveIdx += 1;
         }
     }
+    
 
 
     /**

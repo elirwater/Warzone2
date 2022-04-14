@@ -39,6 +39,7 @@ public class NonAdversarialBFS : Agents
 
 
     }
+    
 
     public override List<AttackMoves> generateAttackMoves()
     {

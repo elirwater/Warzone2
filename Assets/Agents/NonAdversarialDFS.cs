@@ -46,9 +46,6 @@ public class NonAdversarialDFS : Agents
     }
 
 
-
-
-
     private void DFS(Territories territory)
     { 
         Stack<Territories> stack = new Stack<Territories>();
