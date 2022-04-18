@@ -61,8 +61,8 @@ public class Controller : MonoBehaviour
         Invoke("updateMapForRendering", 1f);
         
         // We instantiate our agent
-        inGameAgent = new MiniMaxAgent();
-        inGameAgent2 = new MiniMaxAgent();
+        inGameAgent = new ExpectiMaxAgent();
+        inGameAgent2 = new TestingAgent();
         inGameAgent.agentName = "test1";
 
 
@@ -140,4 +140,35 @@ public class Controller : MonoBehaviour
         updateMapForRendering();
 
     }
+
+    
+    
+    /**
+     * Generates analytics for a certain number of rounds
+     * Info such as:
+     * 1. Num territories conquered per agent
+     * 2. Num regions conquered per agent
+     * 2. Num points per agent
+     * 3. 
+     */
+    private void analytics(int numRounds)
+    {
+
+        for (int i = 0; i < numRounds; i++)
+        {
+            nextRound();
+        }
+
+        // foreach (var VARIABLE in COLLECTION)
+        // {
+        //     
+        // }
+        
+    }
+    
+    
+    
+    
+    
+    
 }
