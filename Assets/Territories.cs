@@ -33,16 +33,6 @@ public class Territories
     {
         this.centerCord = centerCord;
         this.territoryName = territoryName;
-
-        
-        //TODO: NEEDS TO BE A DEEP COPY -> Recurring forever because it keeps going in a circle back to territories it has already deepcopied, 
-        // TODO: not easy to solve tho, probably smarter to store the neighbors as a list of territoryNames
-        // List<Territories> neighboringTerritories = new List<Territories>();
-        // foreach (Territories t in neighbors)
-        // {
-        //     neighboringTerritories.Add(new Territories(t.centerCord, t.territoryName));
-        // }
-
         this.neighbors = neighbors;
         this.regionName = regionName;
         this.occupier = occupier;

@@ -12,7 +12,6 @@ public class MiniMaxAgent : Agents
     private int _agentIdx = -1;
     
     
-    
     (DeployMoves, AttackMoves) roundMove = (null, null);
     
 
@@ -29,25 +28,36 @@ public class MiniMaxAgent : Agents
         //TODO I really hate this solution, super akward to not have like an on-game-start method in the agents 
         if (round == 0)
         {
-            agentsList = agentGameState.getAgents();
-            
-            int i = 0;
-            foreach (Agents agent in agentsList)
+            agentsList = new List<Agents>(agentGameState.getAgents());
+
+
+            for (int i = 0; i < agentsList.Count; i++)
             {
-                if (agent.agentName == this.agentName)
+                if (agentsList[i].agentName == this.agentName)
                 {
-                    _agentIdx = i;
+                    Agents tempAgent = agentsList[0];
+                    agentsList[0] = agentsList[i];
+                    agentsList[i] = tempAgent;
+                    break;
                 }
-
-                i += 1;
             }
-            round += 1;
-        }
 
-        (int, DeployMoves, AttackMoves) move = miniMaxRecursive(agentGameState, 0, _agentIdx);
+            _agentIdx = 0;
+            round += 1;
+            
+        }
+        
+
+        (int, DeployMoves, AttackMoves) move = miniMaxRecursive(agentGameState, 0, _agentIdx, null, null);
+        
+        
+
 
         roundMove.Item1 = move.Item2;
         roundMove.Item2 = move.Item3;
+        
+
+        //print(agentName + " " + roundMove.Item1.toTerritory);
         
 
         return new List<DeployMoves>(){roundMove.Item1};
@@ -63,7 +73,7 @@ public class MiniMaxAgent : Agents
 
 
 
-    private (int, DeployMoves, AttackMoves) miniMaxRecursive(GameState.AbstractAgentGameState.AgentGameState gameState, int depth, int agentIdx)
+    private (int, DeployMoves, AttackMoves) miniMaxRecursive(GameState.AbstractAgentGameState.AgentGameState gameState, int depth, int agentIdx, DeployMoves currentD, AttackMoves currentA)
     {
 
         if (depth == globalDepth)
@@ -73,7 +83,7 @@ public class MiniMaxAgent : Agents
             
             // This could be VERY VERY WRONG
             // ALso -> should be checking win and loss conditions ahahaha
-            return (score, null, null);
+            return (score, currentD, currentA);
         }
 
         int currentMin = int.MaxValue;
@@ -103,13 +113,13 @@ public class MiniMaxAgent : Agents
                 GameState.AbstractAgentGameState.AgentGameState succGameState =
                     gameState.generateSuccessorGameState(move.Item1, move.Item2, agentsList[agentIdx].agentName);
             
-                (int, DeployMoves, AttackMoves) actionPair = miniMaxRecursive(succGameState, newDepth, childIdx);
+                (int, DeployMoves, AttackMoves) actionPair = miniMaxRecursive(succGameState, newDepth, childIdx, move.Item1, move.Item2);
 
 
                 if (actionPair.Item1 < currentMin)
                 {
                     currentMin = actionPair.Item1;
-                    minAction = (actionPair.Item2, actionPair.Item3);
+                    minAction = move;
                 }
             }
 
@@ -132,21 +142,27 @@ public class MiniMaxAgent : Agents
             }
             
             List<(DeployMoves, AttackMoves)> legalMoves = gameState.generateLegalMoves(agentsList[agentIdx].agentName);
-            
+
             foreach ((DeployMoves, AttackMoves) move in legalMoves)
             {
+                //print(agentsList[agentIdx].agentName + " " + move.Item1.toTerritory);
+                
                 GameState.AbstractAgentGameState.AgentGameState succGameState =
                     gameState.generateSuccessorGameState(move.Item1, move.Item2, agentsList[agentIdx].agentName);
                 
-                (int, DeployMoves, AttackMoves) actionPair = miniMaxRecursive(succGameState, newDepth, childIdx);
-
-
+                
+                (int, DeployMoves, AttackMoves) actionPair = miniMaxRecursive(succGameState, newDepth, childIdx, move.Item1, move.Item2);
+            
+                //So this action stays null
+                
                 if (actionPair.Item1 > currentMax)
                 {
                     currentMax = actionPair.Item1;
-                    maxAction = (actionPair.Item2, actionPair.Item3);
+                    maxAction = move;
                 }
             }
+          
+          
             
             return (currentMax, maxAction.Item1, maxAction.Item2);
             

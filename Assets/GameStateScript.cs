@@ -16,7 +16,7 @@ public class GameState : MonoBehaviour
     private List<Agents> agentsList;
 
     private List<int> agentSpawnTerritoryIndexes = new List<int>();
-    
+    private bool isFakeGameState;
 
     //Dict that stores the agentID as a key and the List<Territories for that agent, makes for faster indexing
     IDictionary<string, List<Territories>> territoriesByAgent = new Dictionary<string, List<Territories>>();
@@ -27,14 +27,13 @@ public class GameState : MonoBehaviour
         currentMapState = startingMapState;
         regions = startingRegionState;
         agentsList = agents;
+        isFakeGameState = fakeGameState;
         
         //Legit terrible solution
-        if (fakeGameState)
+        if (isFakeGameState)
         {
-            print(currentMapState.Count);
-            
-            populateInitialTerritoriesByAgentDict();   
-            populateTerritoriesByAgent();
+            populateInitialTerritoriesByAgentDict();
+            nextRound();
         }
         else
         {
@@ -354,10 +353,12 @@ public class GameState : MonoBehaviour
                 }
 
                 GameState g = new GameState(newList, gameState.regions, gameState.agentsList, true);
-                //print(gameState.agentsList[1].agentName);
-                g.updateDeploy(new List<(string, List<DeployMoves>)>(){(agentName, new List<DeployMoves>(){dMove})});
-                g.updateAttack(new List<(string, List<AttackMoves>)>(){(agentName, new List<AttackMoves>(){aMove})});
                 
+                
+                g.updateDeploy(new List<(string, List<DeployMoves>)>(){(agentName, new List<DeployMoves>(){dMove})});
+                
+                g.updateAttack(new List<(string, List<AttackMoves>)>(){(agentName, new List<AttackMoves>(){aMove})});
+
                 // A bit convuluded
                 AbstractAgentGameState abs = new AbstractAgentGameState(g);
                 return new AgentGameState(abs);
@@ -371,7 +372,7 @@ public class GameState : MonoBehaviour
             
             public List<(DeployMoves, AttackMoves)> generateLegalMoves(string agentName)
             {
-                
+
                 // Generate a list of neighboring enemy territories (we are excluding internal troop transfers for recursive load issues)
                 // List is structured as fromTerritory -> toTerritory
                 List<(Territories, Territories)> neighboringEnemyTerritoriesTuple = new List<(Territories, Territories)>();
@@ -390,8 +391,6 @@ public class GameState : MonoBehaviour
                         }
                         
                     }
-                    //print(agentName);
-                    //print(territory.territoryName);
                 }
 
                 List<(DeployMoves, AttackMoves)> moves = new List<(DeployMoves, AttackMoves)>();
@@ -403,12 +402,14 @@ public class GameState : MonoBehaviour
 
                         DeployMoves dMove = new DeployMoves(territory.Item1.territoryName,
                             abstractAgentGameState.getArmies(agentName));
-                        
+
                         AttackMoves aMove = new AttackMoves(territory.Item1.territoryName, territory.Item2.territoryName,
                             territory.Item1.armies + abstractAgentGameState.getArmies(agentName));
                         moves.Add((dMove, aMove));   
                     }
                 }
+                
+                
                 return moves;
            
             }
@@ -454,8 +455,6 @@ public class GameState : MonoBehaviour
      */
     public void updateDeploy(List<(string, List<DeployMoves>)> movesPerAgent)
     {
-        
-        //print(territoriesByAgent.Count);
 
         foreach ((string, List<DeployMoves>) move in movesPerAgent)
         {
@@ -476,8 +475,15 @@ public class GameState : MonoBehaviour
                 }
                 else
                 {
-                    throw new System.Exception(currentAgent + " has attempted to deploy troops to territories unconquered by this agent, " +
-                                               "please check your generateDeploy() method in " + currentAgent);
+                    if (isFakeGameState)
+                    {
+                        currentMapState[territoryIndex].armies += deployMove.armies;   
+                    }
+                    else
+                    {
+                        throw new System.Exception(currentAgent + " has attempted to deploy troops to territories unconquered by this agent, " +
+                                                   "please check your generateDeploy() method in " + currentAgent);   
+                    }
                 }
             }
         }
@@ -562,6 +568,7 @@ public class GameState : MonoBehaviour
      */
     private int getTerritoryIndex(string territoryName)
     {
+
         for (int i = 0; i < currentMapState.Count; i++)
         {
             if (currentMapState[i].territoryName == territoryName)
