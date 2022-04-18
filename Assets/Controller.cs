@@ -61,7 +61,7 @@ public class Controller : MonoBehaviour
         Invoke("updateMapForRendering", 1f);
         
         // We instantiate our agent
-        inGameAgent = new TestingAgent();
+        inGameAgent = new NonAdversarialDFS();
         //inGameAgent2 = new MiniMaxAgent();
         inGameAgent.agentName = "test1";
 
