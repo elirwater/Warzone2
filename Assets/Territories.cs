@@ -7,7 +7,7 @@ public class Territories
     public Vector2 centerCord;
     public string territoryName;
 
-    public List<Territories> neighbors;
+    public List<string> neighbors;
 
     public string regionName;
 
@@ -18,7 +18,7 @@ public class Territories
     {
         this.centerCord = centerCord;
         this.territoryName = territoryName;
-        this.neighbors = new List<Territories>();
+        this.neighbors = new List<string>();
         this.regionName = null;
         this.occupier = "unconquered";
         this.armies = 3;
@@ -28,7 +28,7 @@ public class Territories
     
     
     //For Deepcloning territories
-    public Territories(Vector2 centerCord, string territoryName, List<Territories> neighbors, string regionName,
+    public Territories(Vector2 centerCord, string territoryName, List<string> neighbors, string regionName,
         string occupier, int armies)
     {
         this.centerCord = centerCord;
@@ -37,13 +37,13 @@ public class Territories
         
         //TODO: NEEDS TO BE A DEEP COPY -> Recurring forever because it keeps going in a circle back to territories it has already deepcopied, 
         // TODO: not easy to solve tho, probably smarter to store the neighbors as a list of territoryNames
-        List<Territories> neighboringTerritories = new List<Territories>();
-        foreach (Territories t in neighbors)
-        {
-            neighboringTerritories.Add(new Territories(t.centerCord, t.territoryName));
-        }
+        // List<Territories> neighboringTerritories = new List<Territories>();
+        // foreach (Territories t in neighbors)
+        // {
+        //     neighboringTerritories.Add(new Territories(t.centerCord, t.territoryName));
+        // }
 
-        this.neighbors = neighboringTerritories;
+        this.neighbors = neighbors;
         this.regionName = regionName;
         this.occupier = occupier;
         this.armies = armies;
@@ -54,11 +54,11 @@ public class Territories
 
 
     // Adds a neigbor and checks that it isn't already in this territories list of neighbors
-    public void addNeighbor(Territories territory)
+    public void addNeighbor(string territoryName)
     {
-        if (!neighbors.Contains(territory))
+        if (!neighbors.Contains(territoryName))
         {
-            neighbors.Add(territory);
+            neighbors.Add(territoryName);
         }
     }
 

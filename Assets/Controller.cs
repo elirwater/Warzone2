@@ -61,7 +61,7 @@ public class Controller : MonoBehaviour
         Invoke("updateMapForRendering", 1f);
         
         // We instantiate our agent
-        inGameAgent = new MiniMaxAgent();
+        inGameAgent = new TestingAgent();
         //inGameAgent2 = new MiniMaxAgent();
         inGameAgent.agentName = "test1";
 

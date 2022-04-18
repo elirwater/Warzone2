@@ -56,12 +56,13 @@ public class NonAdversarialDFS : Agents
         {
             Territories vertex = stack.Pop();
 
-            foreach (Territories neighbor in vertex.neighbors)
+            foreach (string neighborName in vertex.neighbors)
             {
-                if (!DFSOrderedTerritories.Contains(neighbor))
+                Territories t = agentGameState.getTerritoryByName(neighborName);
+                if (!DFSOrderedTerritories.Contains(t))
                 {
-                    stack.Push(neighbor);
-                    DFSOrderedTerritories.Add(neighbor);
+                    stack.Push(t);
+                    DFSOrderedTerritories.Add(t);
                 }
             }
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -69,30 +70,31 @@ public class NonAdversarialBFS : Agents
     
     private void BFS(Territories territory)
     {
-        List<Territories> visited = new List<Territories>();
-        visited.Add(territory);
-
-        LinkedList<Territories> queue = new LinkedList<Territories>();
-        queue.AddLast(territory);
-
-        while (queue.Any())
-        {
-            Territories vertex = queue.First();
-            queue.RemoveFirst();
-
-            (Territories, List<Territories>) roundFront = (vertex, new List<Territories>());
-            
-            foreach (Territories neighbor in vertex.neighbors)
-            {
-                if (!visited.Contains(neighbor))
-                {
-                    queue.AddLast(neighbor);
-                    visited.Add(neighbor);
-                    roundFront.Item2.Add(neighbor);
-                }
-            }
-            BFSFrontsPerRound.Add(roundFront);
-        }
+        throw new NotImplementedException();
+        // List<Territories> visited = new List<Territories>();
+        // visited.Add(territory);
+        //
+        // LinkedList<Territories> queue = new LinkedList<Territories>();
+        // queue.AddLast(territory);
+        //
+        // while (queue.Any())
+        // {
+        //     Territories vertex = queue.First();
+        //     queue.RemoveFirst();
+        //
+        //     (Territories, List<Territories>) roundFront = (vertex, new List<Territories>());
+        //     
+        //     foreach (Territories neighbor in vertex.neighbors)
+        //     {
+        //         if (!visited.Contains(neighbor))
+        //         {
+        //             queue.AddLast(neighbor);
+        //             visited.Add(neighbor);
+        //             roundFront.Item2.Add(neighbor);
+        //         }
+        //     }
+        //     BFSFrontsPerRound.Add(roundFront);
+        // }
     }
 
 }

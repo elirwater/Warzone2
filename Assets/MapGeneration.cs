@@ -148,8 +148,9 @@ public class MapGeneration : MonoBehaviour{
                         if (pixelMap[i + 1, j].territoryName != currentTerritoryName && !pixelMap[i + 1, j].isOcean)
                         {
                             currentPixel.isBorder = true;
+                            //Could just be refactored as the name with the new changes
                             Territories t = findTerritoryByName(pixelMap[i + 1, j].territoryName);
-                            currentTerritory.addNeighbor(t);
+                            currentTerritory.addNeighbor(t.territoryName);
                         }
 
                         if (pixelMap[i + 1, j].isOcean)
@@ -164,7 +165,7 @@ public class MapGeneration : MonoBehaviour{
                         {
                             currentPixel.isBorder = true;
                             Territories t = findTerritoryByName(pixelMap[i, j + 1].territoryName);
-                            currentTerritory.addNeighbor(t);
+                            currentTerritory.addNeighbor(t.territoryName);
                         }
 
                         if (pixelMap[i, j + 1].isOcean)
@@ -179,7 +180,7 @@ public class MapGeneration : MonoBehaviour{
                         {
                             currentPixel.isBorder = true;
                             Territories t = findTerritoryByName(pixelMap[i - 1, j].territoryName);
-                            currentTerritory.addNeighbor(t);
+                            currentTerritory.addNeighbor(t.territoryName);
                         }
 
                         if (pixelMap[i - 1, j].isOcean)
@@ -194,7 +195,7 @@ public class MapGeneration : MonoBehaviour{
                         {
                             currentPixel.isBorder = true;
                             Territories t = findTerritoryByName(pixelMap[i, j - 1].territoryName);
-                            currentTerritory.addNeighbor(t);
+                            currentTerritory.addNeighbor(t.territoryName);
                         }
 
                         if (pixelMap[i, j - 1].isOcean)
@@ -206,6 +207,21 @@ public class MapGeneration : MonoBehaviour{
             }
         }
 
+    }
+    
+    /**
+     * Helper function to get a territory based on the territory name for neighbors
+         */
+    private Territories getTerritoryByName(string name)
+    {
+        foreach (Territories t in allTerritories)
+        {
+            if (t.territoryName == name)
+            {
+                return t;
+            }
+        }
+        throw new System.Exception("Attempted access of getTerritories by an unknown Agent");
     }
 
 
@@ -252,29 +268,28 @@ public class MapGeneration : MonoBehaviour{
                 }
             }
         }
+        
 
-
-
-
-        // Propagates each region center outwards to include additional territories until all Territories are in a region
+    // Propagates each region center outwards to include additional territories until all Territories are in a region
         while (territoriesInRegions.Count < allTerritories.Count)
         {
             List<Territories> tempFrontline = new List<Territories>();
 
             foreach (Territories territory in frontline)
             {
-                foreach (Territories neighbor in territory.neighbors)
+                foreach (string neighborName in territory.neighbors)
                 {
-                    if (neighbor.regionName == null)
+                    Territories t = getTerritoryByName(neighborName);
+                    if (t.regionName == null)
                     {
-                        neighbor.regionName = territory.regionName;
-                        tempFrontline.Add(neighbor);
-                        territoriesInRegions.Add(neighbor);
+                        t.regionName = territory.regionName;
+                        tempFrontline.Add(t);
+                        territoriesInRegions.Add(t);
 
                         // Add it to our regional List TODO: replace this with a predicate find function that searches by name, too much looping
                         foreach (Regions region in allRegions)
                         {
-                            if (region.regionName == neighbor.regionName)
+                            if (region.regionName == t.regionName)
                             {
                                 region.territories.Add((territory));
                             }

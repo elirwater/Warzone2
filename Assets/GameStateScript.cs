@@ -223,9 +223,10 @@ public class GameState : MonoBehaviour
             List<Territories> frontLine = new List<Territories>();
             foreach (Territories territory in agentTerritories)
             {
-                foreach (Territories neighborTerritory in territory.neighbors)
+                foreach (string neighborTerritoryName in territory.neighbors)
                 {
-                    if (neighborTerritory.occupier != agentName)
+                    Territories t = getTerritoryByName(neighborTerritoryName);
+                    if (t.occupier != agentName)
                     {
                         if (!frontLine.Contains(territory))
                         {
@@ -235,6 +236,26 @@ public class GameState : MonoBehaviour
                 }
             }
             return frontLine;
+        }
+        
+        /**
+            * Helper function to get a territory if given the territory name -> used when the transition from neighbors being
+            * stored as territories to strings
+             */
+        public Territories getTerritoryByName(string name)
+        {
+            List<Territories> territories = gameState.currentMapState;
+            foreach (Territories t in territories)
+            {
+                // Prolly should be returning a copy 
+                if (t.territoryName == name)
+                {
+                    return t;
+                }
+            }
+
+            throw new System.Exception("Could not locate territory");
+
         }
 
         
@@ -359,12 +380,13 @@ public class GameState : MonoBehaviour
                 
                 foreach (Territories territory in abstractAgentGameState.getFrontLine(agentName))
                 {
-                    foreach (Territories neighboringTerritory in territory.neighbors)
+                    foreach (string neighboringTerritoryName in territory.neighbors)
                     {
-                        if (!frontlineAttackingTerritories.Contains(territory) && neighboringTerritory.occupier != agentName)
+                        Territories t = getTerritoryByName(neighboringTerritoryName);
+                        if (!frontlineAttackingTerritories.Contains(territory) && t.occupier != agentName)
                         {
                             frontlineAttackingTerritories.Add(territory);
-                            neighboringEnemyTerritoriesTuple.Add((territory, neighboringTerritory));
+                            neighboringEnemyTerritoriesTuple.Add((territory, t));
                         }
                         
                     }
@@ -390,8 +412,28 @@ public class GameState : MonoBehaviour
                 return moves;
            
             }
-            
-       
+
+
+            /**
+            * Helper function to get a territory if given the territory name -> used when the transition from neighbors being
+            * stored as territories to strings
+             */
+            public Territories getTerritoryByName(string name)
+            {
+                List<Territories> territories = gameState.currentMapState;
+                foreach (Territories t in territories)
+                {
+                    // Prolly should be returning a copy 
+                    if (t.territoryName == name)
+                    {
+                        return t;
+                    }
+                }
+
+                throw new System.Exception("Could not locate territory");
+
+            }
+
         }
         
     }
@@ -511,6 +553,7 @@ public class GameState : MonoBehaviour
             currentMoveIdx += 1;
         }
     }
+    
     
 
 

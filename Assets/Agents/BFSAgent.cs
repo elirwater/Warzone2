@@ -34,14 +34,15 @@ public class UCSAgent : Agents
         // Hopefully frontline is working here
         foreach (Territories territory in frontLine)
         {
-            foreach (Territories neighbor in territory.neighbors)
+            foreach (string neighborName in territory.neighbors)
             {
+                Territories t = getTerritoryByName(neighborName);
                 // Not sure how valid these contain calls are...
-                if (bfsOrderedTerritories.Contains(neighbor) && !alreadyTargeted.Contains(neighbor))
+                if (bfsOrderedTerritories.Contains(t) && !alreadyTargeted.Contains(t))
                 {
-                    targetFromToTerritories.Add((territory, neighbor));
-                    bfsOrderedTerritories.Remove(neighbor);
-                    alreadyTargeted.Add(neighbor);
+                    targetFromToTerritories.Add((territory, t));
+                    bfsOrderedTerritories.Remove(t);
+                    alreadyTargeted.Add(t);
                 }
             }
         }
@@ -136,11 +137,12 @@ public class UCSAgent : Agents
             LinkedList<Territories> neighbors = new LinkedList<Territories>();
             
             // Need to make sure we only add neighbors that are in this region
-            foreach (Territories territory in targetTerritory.neighbors)
+            foreach (string territoryName in targetTerritory.neighbors)
             {
-                if (territory.regionName == targetRegion.regionName)
+                Territories t = getTerritoryByName(territoryName);
+                if (t.regionName == targetRegion.regionName)
                 {
-                    neighbors.AddLast(territory);
+                    neighbors.AddLast(t);
                 }
             }
 
@@ -180,11 +182,12 @@ public class UCSAgent : Agents
         
         foreach (Territories territory in frontLine)
         {
-            foreach (Territories frontLineNeighbor in territory.neighbors)
+            foreach (string frontLineNeighborName in territory.neighbors)
             {
-                if (frontLineNeighbor.occupier != agentName)
+                Territories t = agentGameState.getTerritoryByName(frontLineNeighborName);
+                if (t.occupier != agentName)
                 {
-                    Regions extractedRegion = getRegionByName(frontLineNeighbor.regionName);
+                    Regions extractedRegion = getRegionByName(t.regionName);
                     if (extractedRegion.regionalBonusValue > maxRegionalBonusVal)
                     {
                         maxRegionalBonusVal = extractedRegion.regionalBonusValue;

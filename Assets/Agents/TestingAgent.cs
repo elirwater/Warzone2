@@ -42,11 +42,12 @@ public class TestingAgent : Agents
             Territories choosenTerritory = null;
 
             List<Territories> neighboringEnemyTerritories = new List<Territories>();
-            foreach (Territories neighbor in territory.neighbors)
+            foreach (string neighborName in territory.neighbors)
             {
-                if (neighbor.occupier != agentName)
+                Territories t = agentGameState.getTerritoryByName(neighborName);
+                if (t.occupier != agentName)
                 {
-                    neighboringEnemyTerritories.Add(neighbor);
+                    neighboringEnemyTerritories.Add(t);
                 }
             }
 
