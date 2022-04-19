@@ -76,7 +76,7 @@ public class MiniMaxAgent : Agents
     private (int, DeployMoves, AttackMoves) miniMaxRecursive(GameState.AbstractAgentGameState.AgentGameState gameState, int depth, int agentIdx, DeployMoves currentD, AttackMoves currentA)
     {
 
-        if (depth == globalDepth)
+        if (depth == globalDepth || gameState.checkGameOverConditions())
         {
             // ALSO DON"T KNOW IF THIS WORKS 
             int score = gameState.generateScore(agentName);
@@ -112,7 +112,8 @@ public class MiniMaxAgent : Agents
             {
                 GameState.AbstractAgentGameState.AgentGameState succGameState =
                     gameState.generateSuccessorGameState(move.Item1, move.Item2, agentsList[agentIdx].agentName);
-            
+                exploredGameStates += 1;
+                
                 (int, DeployMoves, AttackMoves) actionPair = miniMaxRecursive(succGameState, newDepth, childIdx, move.Item1, move.Item2);
 
 
@@ -149,7 +150,7 @@ public class MiniMaxAgent : Agents
                 
                 GameState.AbstractAgentGameState.AgentGameState succGameState =
                     gameState.generateSuccessorGameState(move.Item1, move.Item2, agentsList[agentIdx].agentName);
-                
+                exploredGameStates += 1;
                 
                 (int, DeployMoves, AttackMoves) actionPair = miniMaxRecursive(succGameState, newDepth, childIdx, move.Item1, move.Item2);
             

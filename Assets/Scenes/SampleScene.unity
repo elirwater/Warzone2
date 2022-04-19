@@ -484,3 +484,6 @@ MonoBehaviour:
     smoothIterations: 33
     randomFillPercent: 46
     seed: ewesadfaq
+  analytics:
+    numSimulatedGames: 0
+    numPlayoutRounds: 0

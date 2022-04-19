@@ -37,9 +37,6 @@ public class Territories
         this.regionName = regionName;
         this.occupier = occupier;
         this.armies = armies;
-
-
-
     }
 
 

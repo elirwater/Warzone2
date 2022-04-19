@@ -78,7 +78,7 @@ public class ExpectiMaxAgent : Agents
         
         List<(DeployMoves, AttackMoves)> legalMoves = gameState.generateLegalMoves(agentsList[agentIdx].agentName);
 
-        if (depth == globalDepth || legalMoves.Count == 0)
+        if (depth == globalDepth || legalMoves.Count == 0 || gameState.checkGameOverConditions())
         {
             // ALSO DON"T KNOW IF THIS WORKS 
             int score = gameState.generateScore(agentName);
@@ -117,6 +117,7 @@ public class ExpectiMaxAgent : Agents
             {
                 GameState.AbstractAgentGameState.AgentGameState succGameState =
                     gameState.generateSuccessorGameState(move.Item1, move.Item2, agentsList[agentIdx].agentName);
+                exploredGameStates += 1;
             
                 (double, DeployMoves, AttackMoves) actionPair = miniMaxRecursive(succGameState, newDepth, childIdx, maxAction);
 
@@ -148,6 +149,7 @@ public class ExpectiMaxAgent : Agents
                 
                 GameState.AbstractAgentGameState.AgentGameState succGameState =
                     gameState.generateSuccessorGameState(move.Item1, move.Item2, agentsList[agentIdx].agentName);
+                exploredGameStates += 1;
                 
                 
                 (double, DeployMoves, AttackMoves) actionPair = miniMaxRecursive(succGameState, newDepth, childIdx, maxAction);

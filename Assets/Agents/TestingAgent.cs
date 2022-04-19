@@ -34,6 +34,7 @@ public class TestingAgent : Agents
     {
         List<AttackMoves> moves = new List<AttackMoves>();
         
+        
         System.Random random = new Random();
         foreach (Territories territory in frontLine)
         {

@@ -56,7 +56,7 @@ public class UCSAgent : Agents
         if (bfsOrderedTerritories.Count == 0 && targetFromToTerritories.Count == 0)
         {
             generateTargetRegion();
-            print(targetRegion.regionName);
+            //print(targetRegion.regionName);
             BFS();
         }
         

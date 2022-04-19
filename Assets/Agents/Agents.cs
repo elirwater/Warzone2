@@ -14,6 +14,7 @@ public abstract class Agents : MonoBehaviour
     protected List<Territories> frontLine;
     protected List<Regions> regions;
     protected int armies;
+    protected int exploredGameStates = 0;
 
 
     public void setAbstractAgentGameState(GameState.AbstractAgentGameState abstractAgentGameState)
@@ -60,6 +61,19 @@ public abstract class Agents : MonoBehaviour
             }
         }
         throw new System.Exception("Failed to find target territory");
+    }
+
+
+    public string getStringAnalytics()
+    {
+        return "AgentName: " + agentName + ", Armies: " + armies + ", Territories: " + territories.Count + ", Explored GameStates: " + exploredGameStates;
+    }
+
+
+
+    public (int, int, int) getAnalytics()
+    {
+        return (armies, territories.Count, exploredGameStates);
     }
 
     

@@ -356,6 +356,12 @@ public class MapGeneration : MonoBehaviour{
 
     public List<Territories> getTerritories()
     {
+        foreach (var t in allTerritories)
+        {
+            t.occupier = "unconquered";
+            t.armies = 3;
+        }
+
         return allTerritories;
     }
 

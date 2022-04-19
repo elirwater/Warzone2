@@ -11,7 +11,7 @@ using UnityEngine;
 public class GameState : MonoBehaviour
 {
 
-    private List<Territories> currentMapState;
+    public List<Territories> currentMapState;
     private List<Regions> regions;
     private List<Agents> agentsList;
 
@@ -28,7 +28,8 @@ public class GameState : MonoBehaviour
         regions = startingRegionState;
         agentsList = agents;
         isFakeGameState = fakeGameState;
-        
+
+
         //Legit terrible solution
         if (isFakeGameState)
         {
@@ -96,8 +97,8 @@ public class GameState : MonoBehaviour
     public void nextRound()
     {
         populateTerritoriesByAgent();
-        updateRegionalOccupiers();
-        checkGameOverConditions();
+        //updateRegionalOccupiers();
+        //checkGameOverConditions();
     }
 
 
@@ -122,8 +123,10 @@ public class GameState : MonoBehaviour
     /**
      * CALLED BY the controller every round
      * this updates each region to see if an agent holds a region or not, and if so, assigns it to be the occupier
+     *
+     * THIS METHOD MIGHT NOT BE FUNCTIONAL
      */
-    private void updateRegionalOccupiers()
+    public void updateRegionalOccupiers()
     {
         foreach (Regions region in regions)
         {
@@ -142,18 +145,22 @@ public class GameState : MonoBehaviour
     }
 
 
-    private void checkGameOverConditions()
+    public bool checkGameOverConditions()
     {
+        
         List<string> occupiers = new List<string>();
-        foreach (Regions region in regions)
+        foreach (Territories t in currentMapState)
         {
-            occupiers.Add(region.occupier);
+            occupiers.Add(t.occupier);
         }
         int uniqueOccupiers = occupiers.Distinct().Count();
-        if (uniqueOccupiers == 1 && occupiers[0] != "unconquered")
+        if (uniqueOccupiers == 1)
         {
-            EditorApplication.ExecuteMenuItem("Edit/Play");
+            return true;
         }
+
+        return false;
+
     }
 
 
@@ -368,6 +375,12 @@ public class GameState : MonoBehaviour
             {
                 return gameState.agentsList;
             }
+
+
+            public bool checkGameOverConditions()
+            {
+                return gameState.checkGameOverConditions();
+            }
             
             
             public List<(DeployMoves, AttackMoves)> generateLegalMoves(string agentName)
@@ -459,32 +472,33 @@ public class GameState : MonoBehaviour
         foreach ((string, List<DeployMoves>) move in movesPerAgent)
         {
             string currentAgent = move.Item1;
-            validateAgent(currentAgent, "updateDeploy");
-
-            foreach (DeployMoves deployMove in move.Item2)
+            if (validateAgent(currentAgent, "updateDeploy"))
             {
-                bool legalMove = false;
-                int territoryIndex = getTerritoryIndex(deployMove.toTerritory);
-                Territories moveTerritory = currentMapState[territoryIndex];
-                legalMove = territoriesByAgent[currentAgent].Contains(moveTerritory);
+                foreach (DeployMoves deployMove in move.Item2)
+                {
+                    bool legalMove = false;
+                    int territoryIndex = getTerritoryIndex(deployMove.toTerritory);
+                    Territories moveTerritory = currentMapState[territoryIndex];
+                    legalMove = territoriesByAgent[currentAgent].Contains(moveTerritory);
                 
 
-                if (legalMove)
-                {
-                    currentMapState[territoryIndex].armies += deployMove.armies;
-                }
-                else
-                {
-                    if (isFakeGameState)
+                    if (legalMove)
                     {
-                        currentMapState[territoryIndex].armies += deployMove.armies;   
+                        currentMapState[territoryIndex].armies += deployMove.armies;
                     }
                     else
                     {
-                        throw new System.Exception(currentAgent + " has attempted to deploy troops to territories unconquered by this agent, " +
-                                                   "please check your generateDeploy() method in " + currentAgent);   
+                        if (isFakeGameState)
+                        {
+                            currentMapState[territoryIndex].armies += deployMove.armies;   
+                        }
+                        else
+                        {
+                            throw new System.Exception(currentAgent + " has attempted to deploy troops to territories unconquered by this agent, " +
+                                                       "please check your generateDeploy() method in " + currentAgent);   
+                        }
                     }
-                }
+                }   
             }
         }
     }
@@ -593,7 +607,7 @@ public class GameState : MonoBehaviour
         }
         catch (Exception e)
         {
-            throw new System.Exception("Unknown Agent Name passed in in function: " + functionName);
+            return false;
         }
     }
     

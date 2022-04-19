@@ -1,22 +1,28 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
+using Unity.Mathematics;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 public class Controller : MonoBehaviour
-
-
 {
     private GameState gameStateObj;
     private MapGeneration mapState;
     private MapRendering mapRendering;
+
     private List<Agents> agents;
 
 
     private Agents inGameAgent;
     private Agents inGameAgent2;
+    private Agents inGameAgent3;
+
+    
+    private bool isGameOver;
+    
 
     
 
@@ -37,9 +43,32 @@ public class Controller : MonoBehaviour
     public MapGenerationData mapGenerationData;
     
     
+    
+    [System.Serializable]
+    public class Analytics
+    {
+        public int numSimulatedGames;
+        public int numPlayoutRounds;
+    }
+
+    public Analytics analytics;
+    
+    
     private void Start()
     {
         initializeGame();
+        
+        
+        if (analytics.numSimulatedGames != 0 && analytics.numPlayoutRounds != 0)
+        {
+            generateAnalyticForXGames(analytics.numSimulatedGames, analytics.numPlayoutRounds);
+        }
+        
+
+        if (analytics.numPlayoutRounds > 0 && analytics.numSimulatedGames == 0)
+        {
+            generateAnalytics(analytics.numPlayoutRounds);
+        }
     }
     
     
@@ -48,6 +77,7 @@ public class Controller : MonoBehaviour
      */
     private void initializeGame()
     {
+        isGameOver = false;
         // Note: will need to change in the future when there are multiple agents simultaneously
         
         // We first instantiate the two of the core objets used by the controller, the map and the mapRenderer
@@ -61,17 +91,20 @@ public class Controller : MonoBehaviour
         Invoke("updateMapForRendering", 1f);
         
         // We instantiate our agent
-        inGameAgent = new ExpectiMaxAgent();
-        inGameAgent2 = new TestingAgent();
-        inGameAgent.agentName = "test1";
+        inGameAgent = new AlphaBetaAgent();
+        inGameAgent2 = new ExpectiMaxAgent();
+        inGameAgent2.agentName = "ye";
+        inGameAgent3 = new MiniMaxAgent();
 
 
+
+        agents = new List<Agents>(){inGameAgent, inGameAgent2, inGameAgent3};
         
-        agents = new List<Agents>(){inGameAgent,inGameAgent2};
         
         
         // We then generate our GameState class which controls all aspects of the game
-        gameStateObj = new GameState(territories, mapState.getRegions(), agents, false);
+        gameStateObj = new GameState(new List<Territories>(territories), new List<Regions>(mapState.getRegions()), agents, false);
+
         
         
         // Now we assign our agent the same GameState object so then can make calls and query the gameState
@@ -95,9 +128,15 @@ public class Controller : MonoBehaviour
     private void Update()
     {
         // A given round is progressed by hitting the space key (for now)
-        if (Input.GetKey ("space"))
+        if (Input.GetKey ("space") && !isGameOver)
         {
+            
             nextRound();
+        }
+
+        if (isGameOver)
+        {
+            initializeGame();
         }
     }
 
@@ -117,6 +156,7 @@ public class Controller : MonoBehaviour
     {
 
         gameStateObj.nextRound();
+        gameStateObj.checkGameOverConditions();
 
         foreach (Agents agent in agents)
         {
@@ -139,6 +179,13 @@ public class Controller : MonoBehaviour
 
         updateMapForRendering();
 
+        gameStateObj.updateRegionalOccupiers();
+        if (gameStateObj.checkGameOverConditions())
+        {
+            print("GAME HAS ENDED");
+            isGameOver = true;
+        }
+
     }
 
     
@@ -151,19 +198,119 @@ public class Controller : MonoBehaviour
      * 2. Num points per agent
      * 3. 
      */
-    private void analytics(int numRounds)
+    private void generateAnalytics(int numRounds)
     {
-
         for (int i = 0; i < numRounds; i++)
         {
             nextRound();
+            if (isGameOver)
+            {
+                print("Game lasted " + i + " rounds");
+                break;
+            }
         }
 
-        // foreach (var VARIABLE in COLLECTION)
-        // {
-        //     
-        // }
+        gameStateObj.nextRound();
+        foreach (var a in agents)
+        {
+            a.nextRound();
+            print(a.getStringAnalytics());
+        }
         
+    }
+    
+    
+    
+    private void generateAnalyticForXGames(int numGames, int numRounds)
+    {
+
+        IDictionary<string, List<(int, int, int)>> gameInfoByAgent =
+            new Dictionary<string, List<(int, int, int)>>();
+        
+        IDictionary<string, int> victoriesByAgent =
+            new Dictionary<string, int>();
+        
+        
+        IDictionary<string,  List<int>> roundsToWinByAgent =
+            new Dictionary<string, List<int>>();
+        
+        
+        // Basically how well is it targetting regions
+        IDictionary<string, List<int>>  averageRoundsToBonusPointsByAgent =
+            new Dictionary<string, List<int>>();
+
+
+        foreach (var a in agents)
+        {
+            gameInfoByAgent.Add(a.agentName, new List<(int, int, int)>());
+            victoriesByAgent.Add(a.agentName, 0);
+            roundsToWinByAgent.Add(a.agentName, new List<int>());
+            averageRoundsToBonusPointsByAgent.Add(a.agentName, new List<int>());
+        }
+        
+        
+        
+        
+        for (int j = 0; j < numGames; j++)
+        {
+
+            try
+            {
+                for (int i = 0; i < numRounds; i++)
+                {
+                    nextRound();
+
+                    foreach (var a in agents)
+                    {
+                
+                        if (a.getAnalytics().Item1 > 5)
+                        {
+                            averageRoundsToBonusPointsByAgent[a.agentName].Add(i);
+                            break;
+                        }
+                    }
+                    
+                    
+                    if (isGameOver)
+                    {
+                        gameStateObj.nextRound();
+                        
+                        int maxArmies = 0;
+                        Agents winningAgent = null;
+                        foreach (var a in agents)
+                        {
+                            a.nextRound();
+                            if (a.getAnalytics().Item1 > maxArmies)
+                            {
+                                maxArmies = a.getAnalytics().Item1;
+                                winningAgent = a;
+                            }
+                        }
+
+                        roundsToWinByAgent[winningAgent.agentName].Add(i);
+
+                        break;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                
+            }
+            initializeGame();
+        }
+
+
+        foreach (var data in averageRoundsToBonusPointsByAgent)
+        {
+            int sum = 0;
+            foreach (var dataPoint in data.Value)
+            {
+                sum += dataPoint;
+            }
+            print(data.Key + " " + sum / data.Value.Count);
+        }
+
     }
     
     

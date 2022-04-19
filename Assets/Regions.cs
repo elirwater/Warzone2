@@ -15,7 +15,7 @@ public class Regions
         this.regionName = regionName;
         this.regionalBonusValue = regionalBonusValue;
         this.territories = new List<Territories>();
-        this.occupier = null;
+        this.occupier = "unconquered";
     }
 
 }
