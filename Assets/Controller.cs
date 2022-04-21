@@ -45,10 +45,29 @@ public class Controller : MonoBehaviour
     public MapGenerationData mapGenerationData;
     
     
+    [System.Serializable]
+    public class AgentData
+    {
+        public bool naiveAgent;
+        public bool dfsAgent;
+        public bool bfsAgent;
+        public int testingAgent;
+        public int alphaBetaAgent;
+        public int miniMaxAgent;
+        public int expectiMaxAgent;
+
+    }
+
+    public AgentData agentData;
+
+    
+    
+    
     
     [System.Serializable]
     public class Analytics
     {
+        public bool analyticsOn;
         public int numSimulatedGames;
         public int numPlayoutRounds;
     }
@@ -60,16 +79,18 @@ public class Controller : MonoBehaviour
     {
         initializeGame();
         
-        
-        if (analytics.numSimulatedGames != 0 && analytics.numPlayoutRounds != 0)
+        if (analytics.analyticsOn)
         {
-            generateAnalyticForXGames(analytics.numSimulatedGames, analytics.numPlayoutRounds);
-        }
+            if (analytics.numSimulatedGames != 0 && analytics.numPlayoutRounds != 0)
+            {
+                generateAnalyticForXGames(analytics.numSimulatedGames, analytics.numPlayoutRounds);
+            }
         
 
-        if (analytics.numPlayoutRounds > 0 && analytics.numSimulatedGames == 0)
-        {
-            generateAnalytics(analytics.numPlayoutRounds);
+            if (analytics.numPlayoutRounds > 0 && analytics.numSimulatedGames == 0)
+            {
+                generateAnalytics(analytics.numPlayoutRounds);
+            }   
         }
     }
     
@@ -92,21 +113,11 @@ public class Controller : MonoBehaviour
         // We invoke the rendering aspect of the map after 1 second (due to how long the map takes to generate)
         Invoke("updateMapForRendering", 1f);
         
-        // We instantiate our agent
-        inGameAgent = new AlphaBetaAgent();
-        inGameAgent.agentName = "a";
-        inGameAgent2 = new AlphaBetaAgent();
-        inGameAgent2.agentName = "b";
-        // inGameAgent3 = new TestingAgent();
-        // inGameAgent3.agentName = "c";
-        // inGameAgent4 = new TestingAgent();
-        // inGameAgent4.agentName = "d";
-        // inGameAgent5 = new TestingAgent();
-        // inGameAgent5.agentName = "e";
 
 
 
-        agents = new List<Agents>(){inGameAgent, inGameAgent2};
+        agents = new List<Agents>();
+        instantiateAgentsFromEditor();
         
         
         
@@ -185,8 +196,11 @@ public class Controller : MonoBehaviour
         }
         gameStateObj.updateAttack(attackMoves);
 
-        updateMapForRendering();
-        
+        if (!analytics.analyticsOn)
+        {
+            updateMapForRendering();   
+        }
+
 
         gameStateObj.updateRegionalOccupiers();
         if (gameStateObj.checkGameOverConditions())
@@ -230,6 +244,7 @@ public class Controller : MonoBehaviour
     
     
     
+    
     private void generateAnalyticForXGames(int numGames, int numRounds)
     {
 
@@ -243,18 +258,12 @@ public class Controller : MonoBehaviour
         IDictionary<string,  List<int>> roundsToWinByAgent =
             new Dictionary<string, List<int>>();
         
-        
-        // Basically how well is it targetting regions
-        IDictionary<string, List<int>>  averageRoundsToBonusPointsByAgent =
-            new Dictionary<string, List<int>>();
-
 
         foreach (var a in agents)
         {
             gameInfoByAgent.Add(a.agentName, new List<(int, int, int)>());
             victoriesByAgent.Add(a.agentName, 0);
             roundsToWinByAgent.Add(a.agentName, new List<int>());
-            averageRoundsToBonusPointsByAgent.Add(a.agentName, new List<int>());
         }
         
         
@@ -262,24 +271,12 @@ public class Controller : MonoBehaviour
         
         for (int j = 0; j < numGames; j++)
         {
-
             try
             {
                 for (int i = 0; i < numRounds; i++)
                 {
                     nextRound();
 
-                    foreach (var a in agents)
-                    {
-                
-                        if (a.getAnalytics().Item1 > 5)
-                        {
-                            averageRoundsToBonusPointsByAgent[a.agentName].Add(i);
-                            break;
-                        }
-                    }
-                    
-                    
                     if (isGameOver)
                     {
                         gameStateObj.nextRound();
@@ -297,6 +294,7 @@ public class Controller : MonoBehaviour
                         }
 
                         roundsToWinByAgent[winningAgent.agentName].Add(i);
+                        victoriesByAgent[winningAgent.agentName] += 1;
 
                         break;
                     }
@@ -310,7 +308,8 @@ public class Controller : MonoBehaviour
         }
 
 
-        foreach (var data in averageRoundsToBonusPointsByAgent)
+
+        foreach (var data in roundsToWinByAgent)
         {
             int sum = 0;
             foreach (var dataPoint in data.Value)
@@ -321,6 +320,78 @@ public class Controller : MonoBehaviour
         }
 
     }
+    
+    
+    
+    
+    /**
+     * Instantiates the agents selected from the editor to be in this game
+     */
+    private void instantiateAgentsFromEditor()
+    {
+        System.Random r = new System.Random();
+        
+        // Super manual but not a ton of better ways to do this unless I instantiate a class based on just the string which I'm uncertain of 
+        if (agentData.naiveAgent)
+        {
+            agents.Add(new NaiveAgent());
+            return;
+        }
+        
+        if (agentData.dfsAgent)
+        {
+            agents.Add(new NonAdversarialDFS());
+            return;
+        }
+        
+        if (agentData.bfsAgent)
+        {
+            agents.Add(new NonAdversarialBFS());
+            return;
+        }
+
+        if (agentData.testingAgent > 0)
+        {
+            for (int i = 0; i < agentData.testingAgent; i++)
+            {
+                Agents a = new TestingAgent();
+                a.agentName = r.Next(100000).ToString();
+                agents.Add(a);   
+            }
+        }
+        
+        if (agentData.alphaBetaAgent > 0)
+        {
+            for (int i = 0; i < agentData.alphaBetaAgent; i++)
+            {
+                Agents a = new AlphaBetaAgent();
+                a.agentName = r.Next(100000).ToString();
+                agents.Add(a);   
+            }
+        }
+        
+        if (agentData.miniMaxAgent > 0)
+        {
+            for (int i = 0; i < agentData.miniMaxAgent; i++)
+            {
+                Agents a = new MiniMaxAgent();
+                a.agentName = r.Next(100000).ToString();
+                agents.Add(a);   
+            }
+        }
+        
+        if (agentData.expectiMaxAgent > 0)
+        {
+            for (int i = 0; i < agentData.expectiMaxAgent; i++)
+            {
+                Agents a = new ExpectiMaxAgent();
+                a.agentName = r.Next(100000).ToString();
+                agents.Add(a);   
+            }
+        }
+        
+    }
+
     
     
     

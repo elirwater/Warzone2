@@ -100,7 +100,6 @@ public class GameState : MonoBehaviour
         {
             if (territoriesByAgent[agentsList[i].agentName].Count == 0)
             {
-                print("AGENT REMOVED LOL!");
                 agentsList.RemoveAt(i);
             }
         }
