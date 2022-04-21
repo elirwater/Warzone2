@@ -355,7 +355,7 @@ public class Controller : MonoBehaviour
             for (int i = 0; i < agentData.testingAgent; i++)
             {
                 Agents a = new TestingAgent();
-                a.agentName = r.Next(100000).ToString();
+                a.agentName = a.agentName + "_" + r.Next(1000);
                 agents.Add(a);   
             }
         }
@@ -365,7 +365,7 @@ public class Controller : MonoBehaviour
             for (int i = 0; i < agentData.alphaBetaAgent; i++)
             {
                 Agents a = new AlphaBetaAgent();
-                a.agentName = r.Next(100000).ToString();
+                a.agentName = a.agentName + "_" + r.Next(1000);
                 agents.Add(a);   
             }
         }
@@ -375,7 +375,7 @@ public class Controller : MonoBehaviour
             for (int i = 0; i < agentData.miniMaxAgent; i++)
             {
                 Agents a = new MiniMaxAgent();
-                a.agentName = r.Next(100000).ToString();
+                a.agentName = a.agentName + "_" + r.Next(1000);
                 agents.Add(a);   
             }
         }
@@ -385,7 +385,7 @@ public class Controller : MonoBehaviour
             for (int i = 0; i < agentData.expectiMaxAgent; i++)
             {
                 Agents a = new ExpectiMaxAgent();
-                a.agentName = r.Next(100000).ToString();
+                a.agentName = a.agentName + "_" + r.Next(1000);
                 agents.Add(a);   
             }
         }
