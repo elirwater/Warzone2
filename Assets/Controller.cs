@@ -38,8 +38,7 @@ public class Controller : MonoBehaviour
         public int width;
         public int smoothIterations;
         [Range(0, 100)] public int randomFillPercent;
-        public string seed;
-        
+
     }
 
     public MapGenerationData mapGenerationData;

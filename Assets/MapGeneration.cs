@@ -31,7 +31,9 @@ public class MapGeneration : MonoBehaviour{
         pointsPerTerritory = mapGenerationInputData.pointsPerTerritory;     
         smoothIterations = mapGenerationInputData.smoothIterations;
         randomFillPercent = mapGenerationInputData.randomFillPercent;
-        seed = mapGenerationInputData.seed;
+        
+        System.Random r = new System.Random();
+        seed = r.Next(1000000).ToString();
 
         
 

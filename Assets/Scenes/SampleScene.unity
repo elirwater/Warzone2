@@ -483,7 +483,15 @@ MonoBehaviour:
     width: 200
     smoothIterations: 33
     randomFillPercent: 46
-    seed: ewesadfaq
+  agentData:
+    naiveAgent: 0
+    dfsAgent: 0
+    bfsAgent: 0
+    testingAgent: 0
+    alphaBetaAgent: 0
+    miniMaxAgent: 0
+    expectiMaxAgent: 0
   analytics:
+    analyticsOn: 0
     numSimulatedGames: 0
     numPlayoutRounds: 0

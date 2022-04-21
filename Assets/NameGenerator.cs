@@ -17,20 +17,36 @@ public class NameGenerator : MonoBehaviour
     string[] inputTerritoryNames;
 
 
+    public bool filesRead;
+    
 
 
     private void Start()
     {
+        this.filesRead = false;
+    }
+    
+    
+    
+    // Created because the scripts all instantiate at slightly different times and this needs to be read in separetely
+    // Start method was not working properly
+    private void asynchronousStart()
+    {
+        this.inputTerritoryNames = readFileInput("territoryNames.txt");
+        this.inputRegionNames = readFileInput("regionNames.txt");
         this.usedTerritoryNames = new List<string>();
         this.usedRegionNames = new List<string>();
-        this.inputRegionNames = readFileInput("regionNames.txt");
-        this.inputTerritoryNames = readFileInput("territoryNames.txt");
-
+        filesRead = true;
     }
 
 
     public string generateTerritoryName()
     {
+        
+        if (!filesRead)
+        {
+            asynchronousStart();
+        }
 
         System.Random r = new System.Random();
         string outputName = null;
@@ -52,6 +68,10 @@ public class NameGenerator : MonoBehaviour
 
     public string generateRegionName()
     {
+        if (!filesRead)
+        {
+            asynchronousStart();
+        }
 
         System.Random r = new System.Random();
         string outputName = null;
