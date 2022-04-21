@@ -33,13 +33,13 @@ public class GameState : MonoBehaviour
         //Legit terrible solution
         if (isFakeGameState)
         {
-            populateInitialTerritoriesByAgentDict();
+            updateAgentTerritoryLists();
             nextRound();
         }
         else
         {
             populateAgentsOnMap();
-            populateInitialTerritoriesByAgentDict();   
+            updateAgentTerritoryLists();
         }
     }
     
@@ -64,27 +64,13 @@ public class GameState : MonoBehaviour
                     Territories startingTerritory = currentMapState[tempIdx];
                     startingTerritory.occupier = agent.agentName;
                     startingTerritory.armies = 5;
+                    agentSpawnTerritoryIndexes.Add(tempIdx);
                     idx = tempIdx;
                 }
             }
         }
     }
     
-    /**
-     * This initializes our territoriesByAgent dict
-     * This dict was created in order to avoid having to iterate through every territory every time an agent
-     * requested its frontline territories, or territories in general
-     */
-    private void populateInitialTerritoriesByAgentDict()
-    {
-        foreach (Territories territory in currentMapState)
-        {
-            if (!territoriesByAgent.ContainsKey(territory.occupier) && territory.occupier != "unconquered")
-            {
-                territoriesByAgent.Add(territory.occupier, new List<Territories>());
-            }
-        }
-    }
 
 
     /**
@@ -96,9 +82,28 @@ public class GameState : MonoBehaviour
 
     public void nextRound()
     {
-        populateTerritoriesByAgent();
-        //updateRegionalOccupiers();
-        //checkGameOverConditions();
+        updateAgentTerritoryLists();
+        updateRegionalOccupiers();
+        checkDeadAgents();
+
+    }
+
+
+
+    /**
+     * CALLED BY the controller every round
+     * this checks if an agent has lost all it territory, and removes it from the game if so
+     */
+    private void checkDeadAgents()
+    {
+        for (int i = 0; i < agentsList.Count; i++)
+        {
+            if (territoriesByAgent[agentsList[i].agentName].Count == 0)
+            {
+                print("AGENT REMOVED LOL!");
+                agentsList.RemoveAt(i);
+            }
+        }
     }
 
 
@@ -106,8 +111,17 @@ public class GameState : MonoBehaviour
      * CALLED BY the controller every round
      * this updates our territoriesByAgent dict to contain the newest territories
      */
-    private void populateTerritoriesByAgent()
+    private void updateAgentTerritoryLists()
     {
+        // Firstly, re-instantiate our territoryBy Agent dict
+        territoriesByAgent = new Dictionary<string, List<Territories>>();
+
+        foreach (Agents agent in agentsList)
+        {
+            territoriesByAgent.Add(agent.agentName, new List<Territories>());
+        }
+        
+        
         foreach (Territories territory in currentMapState)
         {
             if (territoriesByAgent.ContainsKey(territory.occupier))
@@ -360,10 +374,8 @@ public class GameState : MonoBehaviour
                 }
 
                 GameState g = new GameState(newList, gameState.regions, gameState.agentsList, true);
-                
-                
+
                 g.updateDeploy(new List<(string, List<DeployMoves>)>(){(agentName, new List<DeployMoves>(){dMove})});
-                
                 g.updateAttack(new List<(string, List<AttackMoves>)>(){(agentName, new List<AttackMoves>(){aMove})});
 
                 // A bit convuluded
@@ -477,11 +489,19 @@ public class GameState : MonoBehaviour
                 foreach (DeployMoves deployMove in move.Item2)
                 {
                     bool legalMove = false;
-                    int territoryIndex = getTerritoryIndex(deployMove.toTerritory);
-                    Territories moveTerritory = currentMapState[territoryIndex];
-                    legalMove = territoriesByAgent[currentAgent].Contains(moveTerritory);
-                
-
+                    int territoryIndex = -1;
+                    // Some agents fail to properly instantiate moves, that is caught here to make the gameState more robust
+                    try
+                    {
+                        territoryIndex = getTerritoryIndex(deployMove.toTerritory);
+                        Territories moveTerritory = currentMapState[territoryIndex];
+                        legalMove = territoriesByAgent[currentAgent].Contains(moveTerritory);
+                    }
+                    catch (Exception e)
+                    {
+                        return;
+                    }
+                    
                     if (legalMove)
                     {
                         currentMapState[territoryIndex].armies += deployMove.armies;
@@ -535,9 +555,19 @@ public class GameState : MonoBehaviour
                 
                 if (move.Item2.Count > currentMoveIdx)
                 {
-                    int fromIndex = getTerritoryIndex(move.Item2[currentMoveIdx].fromTerritory);
-                    int toIndex = getTerritoryIndex(move.Item2[currentMoveIdx].toTerritory);
-
+                    // Some agents fail to properly instantiate moves, that is caught here to make the gameState more robust
+                    int fromIndex = -1;
+                    int toIndex = -1;
+                    try
+                    {
+                        fromIndex = getTerritoryIndex(move.Item2[currentMoveIdx].fromTerritory);
+                        toIndex = getTerritoryIndex(move.Item2[currentMoveIdx].toTerritory);
+                    }
+                    catch
+                    {
+                        return;
+                    }
+                    
                     Territories fromTerritory = currentMapState[fromIndex];
                     Territories toTerritory = currentMapState[toIndex];
                     int attackingArmies = move.Item2[currentMoveIdx].armies;

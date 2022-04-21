@@ -19,6 +19,8 @@ public class Controller : MonoBehaviour
     private Agents inGameAgent;
     private Agents inGameAgent2;
     private Agents inGameAgent3;
+    private Agents inGameAgent4;
+    private Agents inGameAgent5;
 
     
     private bool isGameOver;
@@ -92,13 +94,19 @@ public class Controller : MonoBehaviour
         
         // We instantiate our agent
         inGameAgent = new AlphaBetaAgent();
-        inGameAgent2 = new ExpectiMaxAgent();
-        inGameAgent2.agentName = "ye";
-        inGameAgent3 = new MiniMaxAgent();
+        inGameAgent.agentName = "a";
+        inGameAgent2 = new AlphaBetaAgent();
+        inGameAgent2.agentName = "b";
+        // inGameAgent3 = new TestingAgent();
+        // inGameAgent3.agentName = "c";
+        // inGameAgent4 = new TestingAgent();
+        // inGameAgent4.agentName = "d";
+        // inGameAgent5 = new TestingAgent();
+        // inGameAgent5.agentName = "e";
 
 
 
-        agents = new List<Agents>(){inGameAgent, inGameAgent2, inGameAgent3};
+        agents = new List<Agents>(){inGameAgent, inGameAgent2};
         
         
         
@@ -156,7 +164,7 @@ public class Controller : MonoBehaviour
     {
 
         gameStateObj.nextRound();
-        gameStateObj.checkGameOverConditions();
+    
 
         foreach (Agents agent in agents)
         {
@@ -178,6 +186,7 @@ public class Controller : MonoBehaviour
         gameStateObj.updateAttack(attackMoves);
 
         updateMapForRendering();
+        
 
         gameStateObj.updateRegionalOccupiers();
         if (gameStateObj.checkGameOverConditions())
