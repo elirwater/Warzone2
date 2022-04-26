@@ -163,7 +163,7 @@ public class GameState : MonoBehaviour
 
     public bool checkGameOverConditions()
     {
-        
+
         List<string> occupiers = new List<string>();
         foreach (Territories t in currentMapState)
         {
@@ -175,11 +175,21 @@ public class GameState : MonoBehaviour
             return true;
         }
 
+        // Another conditional to check for only 1 agent remaining on the map with unconquered territory
+        if (uniqueOccupiers == 2 && occupiers.Distinct().Contains("unconquered"))
+        {
+            return true;
+        }
+        
+        
+
         return false;
 
     }
 
 
+    
+    // This  method is only called after the game is already found to have terminated
     public string findWinner()
     {
          
@@ -193,10 +203,20 @@ public class GameState : MonoBehaviour
         {
             return occupiers[0];
         }
-        else
+
+        // Another conditional to check for only 1 agent remaining on the map with unconquered territory
+        if (uniqueOccupiers == 2)
         {
-            throw new SystemException("Winner failed to be found");
+            foreach (var occupier in occupiers)
+            {
+                if (occupier != "unconquered")
+                {
+                    return occupier;
+                }
+            }
         }
+
+        throw new System.Exception("Failed to find winner after gameState was terminated");
     }
 
 
