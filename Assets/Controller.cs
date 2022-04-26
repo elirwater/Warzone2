@@ -54,6 +54,7 @@ public class Controller : MonoBehaviour
         public int alphaBetaAgent;
         public int miniMaxAgent;
         public int expectiMaxAgent;
+        public int MCTSAgent;
 
     }
 
@@ -178,10 +179,13 @@ public class Controller : MonoBehaviour
 
         foreach (Agents agent in agents)
         {
-
             agent.nextRound();
             
+            
             List<DeployMoves> deployMovesTestingAgent = agent.generateDeployMoves();
+            
+            //An agent is getting removed, prolly by the gametstate for some reason
+            
             List<(string, List<DeployMoves>)> deployMoves = new List<(string, List<DeployMoves>)>();
             deployMoves.Add((agent.agentName, deployMovesTestingAgent));
             gameStateObj.updateDeploy(deployMoves);
@@ -384,6 +388,15 @@ public class Controller : MonoBehaviour
             for (int i = 0; i < agentData.expectiMaxAgent; i++)
             {
                 Agents a = new ExpectiMaxAgent();
+                a.agentName = a.agentName + "_" + r.Next(1000);
+                agents.Add(a);   
+            }
+        }
+        if (agentData.MCTSAgent > 0)
+        {
+            for (int i = 0; i < agentData.MCTSAgent; i++)
+            {
+                Agents a = new MCTSAgent();
                 a.agentName = a.agentName + "_" + r.Next(1000);
                 agents.Add(a);   
             }

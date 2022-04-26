@@ -34,8 +34,7 @@ public class MapRendering : MonoBehaviour{
 
             int mapX = 0;
             int mapY = 0;
-
-
+            
 
             if (worldPosition.x >= 0)
             {
@@ -64,6 +63,9 @@ public class MapRendering : MonoBehaviour{
 
             Component.FindObjectOfType<InfoPopup>().displayTerritoryInfo(targetedTerritoryName, targetTerritory.getOccupier(),
                 targetTerritory.regionName, territoryRegion.regionalBonusValue, targetTerritory.neighbors.Count, targetTerritory.armies);
+            
+            FindObjectOfType<DisplayTerritoryInfo>().spawnTextFromMousePosition(worldPosition.x, worldPosition.z);
+            
         }
     }
 
@@ -145,9 +147,9 @@ public class MapRendering : MonoBehaviour{
                         currentColor = currentColor * 2;
                     }
                     
-
+                    
                     Gizmos.color = currentColor;
-                    Vector3 pos = new Vector3(-width / 2 + i + .5f, 0, -height / 2 + j + .5f);
+                    Vector3 pos = new Vector3(-width / 2 + i + .5f, -10, -height / 2 + j + .5f);
                     Gizmos.DrawCube(pos, Vector3.one);
                 }
             }

@@ -96,12 +96,15 @@ public class GameState : MonoBehaviour
      */
     private void checkDeadAgents()
     {
-        for (int i = 0; i < agentsList.Count; i++)
+        if (!isFakeGameState)
         {
-            if (territoriesByAgent[agentsList[i].agentName].Count == 0)
+            for (int i = 0; i < agentsList.Count; i++)
             {
-                agentsList.RemoveAt(i);
-            }
+                if (territoriesByAgent[agentsList[i].agentName].Count == 0)
+                {
+                    agentsList.RemoveAt(i);
+                }
+            }   
         }
     }
 
@@ -174,6 +177,26 @@ public class GameState : MonoBehaviour
 
         return false;
 
+    }
+
+
+    public string findWinner()
+    {
+         
+        List<string> occupiers = new List<string>();
+        foreach (Territories t in currentMapState)
+        {
+            occupiers.Add(t.occupier);
+        }
+        int uniqueOccupiers = occupiers.Distinct().Count();
+        if (uniqueOccupiers == 1)
+        {
+            return occupiers[0];
+        }
+        else
+        {
+            throw new SystemException("Winner failed to be found");
+        }
     }
 
 
@@ -333,6 +356,21 @@ public class GameState : MonoBehaviour
             }
             
             
+            public List<string> getOpponents(string agentName)
+            {
+                List<string> opponents = new List<string>();
+                foreach (var agent in gameState.agentsList)
+                {
+                    if (agent.agentName != agentName)
+                    {
+                        opponents.Add(agent.agentName);
+                    }
+                }
+            
+                return opponents;
+            }
+            
+            
             /**
             * Returns a score based on the total number of armies this agent has plus the number of conquered territories
             * This should be tweaked heuristically
@@ -391,6 +429,11 @@ public class GameState : MonoBehaviour
             public bool checkGameOverConditions()
             {
                 return gameState.checkGameOverConditions();
+            }
+
+            public string findWinner()
+            {
+                return gameState.findWinner();
             }
             
             
