@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 /**
  * Class responsible for rendering the map using Unity Gizmos
@@ -50,16 +52,26 @@ public class MapRendering : MonoBehaviour
                 mapY = (int)((height / 2) + worldPosition.z);
             }
 
-            targetedTerritoryName = pixelMap[mapX, mapY].territoryName;
-            targetedRegionName = pixelMap[mapX, mapY].regionName;
+   
+            // Click outside of map to unselect a territory/region
+            try
+            {
+                targetedTerritoryName = pixelMap[mapX, mapY].territoryName;
+                targetedRegionName = pixelMap[mapX, mapY].regionName;
+                
+                Territories targetTerritory = Component.FindObjectOfType<MapGeneration>().findTerritoryByName(targetedTerritoryName);
 
-            Territories targetTerritory = Component.FindObjectOfType<MapGeneration>().findTerritoryByName(targetedTerritoryName);
+                Regions territoryRegion = Component.FindObjectOfType<MapGeneration>()
+                    .findRegionsByName(targetTerritory.regionName);
 
-            Regions territoryRegion = Component.FindObjectOfType<MapGeneration>()
-                .findRegionsByName(targetTerritory.regionName);
-
-            Component.FindObjectOfType<InfoPopup>().displayTerritoryInfo(targetedTerritoryName, targetTerritory.getOccupier(),
-                targetTerritory.regionName, territoryRegion.regionalBonusValue, targetTerritory.neighbors.Count, targetTerritory.armies);
+                Component.FindObjectOfType<InfoPopup>().displayTerritoryInfo(targetedTerritoryName, targetTerritory.getOccupier(),
+                    targetTerritory.regionName, territoryRegion.regionalBonusValue, targetTerritory.neighbors.Count, targetTerritory.armies);
+            }
+            catch (IndexOutOfRangeException e)
+            {
+                targetedRegionName = "";
+                targetedTerritoryName = "";
+            }
         }
     }
 
