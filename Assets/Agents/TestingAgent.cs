@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Transactions;
 
+/**
+ * Manual but intelligent agent that is hardcoded to play as I would
+ * Can attack multiple territories per round, targets regions
+ */
 public class TestingAgent : Agents
 {
-
-
+    
     public TestingAgent()
     {
-        
         agentName = "testingAgent";
     }
     
@@ -29,11 +29,10 @@ public class TestingAgent : Agents
         return moves;
     }
     
-
+    
     public override List<AttackMoves> generateAttackMoves()
     {
         List<AttackMoves> moves = new List<AttackMoves>();
-        
         
         System.Random random = new Random();
         foreach (Territories territory in frontLine)
@@ -69,7 +68,6 @@ public class TestingAgent : Agents
                 }
 
                 attempts += 1;
-
             }
 
             if (choosenTerritory != null)
@@ -77,11 +75,6 @@ public class TestingAgent : Agents
                 moves.Add(new AttackMoves(territory.territoryName, choosenTerritory.territoryName, attackArmies));    
             }
         }
-
         return moves;
-
     }
-    
-    
-    
 }

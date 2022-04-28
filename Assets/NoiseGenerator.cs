@@ -1,18 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿/**
+ * Class responsible for generating the noise map used by our map generation class
+ */
 public class NoiseGenerator
 {
-
+    
     private int height;
     private int width;
     private int smoothIterations;
     private int randomFillPercent;
     private string seed;
     private int[,] map;
-
-
 
     public NoiseGenerator(int height, int width, int smoothIterations, int randomFillPercent, string seed)
     {
@@ -21,16 +18,16 @@ public class NoiseGenerator
         this.smoothIterations = smoothIterations;
         this.randomFillPercent = randomFillPercent;
         this.seed = seed;
-
     }
 
 
-
+    /**
+     * Generates the initial pixel noise map
+     */
     public Pixel[,] generatePixelNoiseMap()
     {
         GenerateMap();
-
-
+        
         Pixel[,] pixelMap = new Pixel[width, height];
 
         for (int i = 0; i < width; i++)
@@ -48,11 +45,12 @@ public class NoiseGenerator
 
             }
         }
-
         return pixelMap;
     }
     
-
+    /**
+     * Fills the map based on the smoothing function
+     */
     void GenerateMap()
     {
         map = new int[width, height];
@@ -63,7 +61,10 @@ public class NoiseGenerator
             SmoothMap();
         }
     }
-
+    
+    /**
+     * Function that populates the map depth
+     */
     void RandomFillMap()
     {
 
@@ -82,7 +83,10 @@ public class NoiseGenerator
             }
         }
     }
-
+    
+    /**
+     * Smooths the noise map
+     */
     void SmoothMap()
     {
         for (int x = 0; x < width; x++)
@@ -98,6 +102,9 @@ public class NoiseGenerator
         }
     }
 
+    /**
+     * Finds surrounding walls
+     */
     int GetSurroundingWallCount(int gridX, int gridY)
     {
         int wallCount = 0;
@@ -118,8 +125,6 @@ public class NoiseGenerator
                 }
             }
         }
-
         return wallCount;
     }
-
 }

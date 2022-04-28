@@ -1,43 +1,35 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Transactions;
-
-public class UCSAgent : Agents
+/**
+ * Class for representing the Breadth First Search Agent
+ */
+public class BFSAgent : Agents
 {
     private Regions targetRegion = null;
     private Territories targetRegionStartingTerritory = null;
-
     private List<Territories> bfsOrderedTerritories = new List<Territories>();
-    private List<Territories> currentRoundTargetTerritories = new List<Territories>();
-
-
     private List<(Territories, Territories)> targetFromToTerritories = new List<(Territories, Territories)>();
-
-    private int roundNumber = 0;
+    private int roundNumber;
     
-
-
-    public UCSAgent()
+    public BFSAgent()
     {
-        agentName = "UCSAgent";
+        agentName = "BFSAgent";
     }
 
-    //TODO: need to enforce in gamestate that you can't add more armies then u have!!!!!!!
-
+ 
+    /**
+     * Generates which from which territories other territories can be attacked from on the frontline
+     */
     private void generateRoundTargetFromAndToTerritories()
     {
         targetFromToTerritories = new List<(Territories, Territories)>();
         List<Territories> alreadyTargeted = new List<Territories>();
-        
-        // Hopefully frontline is working here
+
         foreach (Territories territory in frontLine)
         {
             foreach (string neighborName in territory.neighbors)
             {
                 Territories t = getTerritoryByName(neighborName);
-                // Not sure how valid these contain calls are...
                 if (bfsOrderedTerritories.Contains(t) && !alreadyTargeted.Contains(t))
                 {
                     targetFromToTerritories.Add((territory, t));
@@ -50,38 +42,17 @@ public class UCSAgent : Agents
     
     public override List<DeployMoves> generateDeployMoves()
     {
-        print("bfs territories count: " + bfsOrderedTerritories.Count);
-        print("targetTerritoriesCount " + targetFromToTerritories.Count);
-        
         if (bfsOrderedTerritories.Count == 0 && targetFromToTerritories.Count == 0)
         {
             generateTargetRegion();
-            //print(targetRegion.regionName);
             BFS();
         }
-        
 
         generateRoundTargetFromAndToTerritories();
-
-
-        // foreach (var t in targetFromToTerritories)
-        // {
-        //     print(roundNumber + " from " + t.Item1.territoryName);
-        //     print(roundNumber + " to " + t.Item2.territoryName);
-        // }
-        //
-        // //TODO: number of armies being deployed is wrong
-        //
-        
-
         roundNumber += 1;
         
         int currentArmies = armies;
         List<DeployMoves> moves = new List<DeployMoves>();
-
-        
-        
-        //TODO  You are literally not deploying any troops??????????
 
         while (currentArmies > 0)
         {
@@ -96,7 +67,6 @@ public class UCSAgent : Agents
 
             }   
         }
-
         return moves;
     }
     
@@ -107,25 +77,18 @@ public class UCSAgent : Agents
         
         foreach ((Territories, Territories) territoryTuple in targetFromToTerritories)
         {
-            
-            // ATTACK IS SENDING ALL THE TROOPS, should be sending just a fraction of them
-            // And once regions are conquered, it still isn't working 
             moves.Add(new AttackMoves(territoryTuple.Item1.territoryName, territoryTuple.Item2.territoryName, 4));
-
         }
 
         return moves;
-
     }
-    
-    
-    // Returns a list of territories ordered by the order in which they are to be taken
-    // Then up to another function to parse through the legal moves for this round
+
+    /**
+     * Runs BFS on the map and generates a list of visited territories that the agent will attack in order
+     */
     private void BFS()
     {
-        
         List<Territories> visited = new List<Territories>(){targetRegionStartingTerritory};
-
         LinkedList<Territories> queue = new LinkedList<Territories>();
         queue.AddLast(targetRegionStartingTerritory);
 
@@ -136,7 +99,6 @@ public class UCSAgent : Agents
 
             LinkedList<Territories> neighbors = new LinkedList<Territories>();
             
-            // Need to make sure we only add neighbors that are in this region
             foreach (string territoryName in targetTerritory.neighbors)
             {
                 Territories t = getTerritoryByName(territoryName);
@@ -154,27 +116,17 @@ public class UCSAgent : Agents
                     visited.Add(territory);
                 }
             }
-            
-
         }
-
+        
         visited.RemoveAt(0);
         bfsOrderedTerritories = visited;
-
     }
 
-
-
-    // TODO: this guy won't work with other agents because its not checking it still holds all territories in that region after a round has passed
-    // So, should run BFS on all partially occupied regions and the target region?
-    
-    
-    
-    // TODO: I BELIEVE EVERYTHING IS OFF BY A ROUND!
+    /**
+     * Generates a region for this BFS agent to target
+     */
     private void generateTargetRegion()
     {
-        
-        
         int maxRegionalBonusVal = 0;
         Regions tempTargetRegion = null;
         Territories tempTargetRegionStartingTerritory = null;
@@ -198,8 +150,6 @@ public class UCSAgent : Agents
                 }   
             }
         }
-        
-        
 
         if (tempTargetRegion == null || tempTargetRegionStartingTerritory == null)
         {
@@ -209,9 +159,4 @@ public class UCSAgent : Agents
         targetRegion = tempTargetRegion;
         targetRegionStartingTerritory = tempTargetRegionStartingTerritory;
     }
-
-    
-    
-    
-    
 }

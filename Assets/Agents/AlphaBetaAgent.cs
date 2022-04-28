@@ -1,15 +1,14 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Mathematics;
-using UnityEngine;
-using UnityEngine.Rendering;
 
+/**
+ * Class for representing the Alpha Beta Pruning Agent
+ */
 public class AlphaBetaAgent : Agents
 {
     
     private int globalDepth = 1;
-    private int round = 0;
+    private int round;
     private List<Agents> agentsList = new List<Agents>();
     private int _agentIdx = -1;
     
@@ -20,71 +19,49 @@ public class AlphaBetaAgent : Agents
     public AlphaBetaAgent()
     {
         agentName = "AlphaBetaAgent";
-        
     }
 
 
     public override List<DeployMoves> generateDeployMoves()
     {
-
-        //TODO I really hate this solution, super akward to not have like an on-game-start method in the agents 
+        // Sets up agent info
         if (round == 0)
         {
             agentsList = new List<Agents>(agentGameState.getAgents());
-
-
+            
             for (int i = 0; i < agentsList.Count; i++)
             {
                 if (agentsList[i].agentName == this.agentName)
                 {
-                    Agents tempAgent = agentsList[0];
-                    agentsList[0] = agentsList[i];
-                    agentsList[i] = tempAgent;
+                    (agentsList[0], agentsList[i]) = (agentsList[i], agentsList[0]);
                     break;
                 }
             }
-
             _agentIdx = 0;
             round += 1;
-            
         }
         
-
-        (int, DeployMoves, AttackMoves) move = miniMaxRecursive(agentGameState, 0, _agentIdx, null, null, int.MinValue, int.MaxValue);
+        (int, DeployMoves, AttackMoves) move = alphaBetaRecursive(agentGameState, 0, _agentIdx, null, null, int.MinValue, int.MaxValue);
         
-        
-
-
         roundMove.Item1 = move.Item2;
         roundMove.Item2 = move.Item3;
         
-
-        //print(agentName + " " + roundMove.Item1.toTerritory);
-        
-
         return new List<DeployMoves>(){roundMove.Item1};
-
-
     }
 
     public override List<AttackMoves> generateAttackMoves()
     {
         return new List<AttackMoves>(){roundMove.Item2};
     }
-
-
-
-
-    private (int, DeployMoves, AttackMoves) miniMaxRecursive(GameState.AbstractAgentGameState.AgentGameState gameState, int depth, int agentIdx, DeployMoves currentD, AttackMoves currentA, int alpha, int beta)
+    
+    /**
+     * Generates this rounds deploy and attack move using alpha beta pruning
+     */
+    private (int, DeployMoves, AttackMoves) alphaBetaRecursive(GameState.AbstractAgentGameState.AgentGameState gameState, int depth, int agentIdx, DeployMoves currentD, AttackMoves currentA, int alpha, int beta)
     {
-
         if (depth == globalDepth || gameState.checkGameOverConditions())
         {
-            // ALSO DON"T KNOW IF THIS WORKS 
             int score = gameState.generateScore(agentName);
-            
-            // This could be VERY VERY WRONG
-            // ALso -> should be checking win and loss conditions ahahaha
             return (score, currentD, currentA);
         }
 
@@ -103,7 +80,6 @@ public class AlphaBetaAgent : Agents
             else
             {
                 childIdx = agentIdx + 1;
-                
             }
             
             int v = int.MaxValue;
@@ -115,9 +91,8 @@ public class AlphaBetaAgent : Agents
                     gameState.generateSuccessorGameState(move.Item1, move.Item2, agentsList[agentIdx].agentName);
                 exploredGameStates += 1;
             
-                (int, DeployMoves, AttackMoves) actionPair = miniMaxRecursive(succGameState, newDepth, childIdx, move.Item1, move.Item2, alpha, beta);
-
-
+                (int, DeployMoves, AttackMoves) actionPair = alphaBetaRecursive(succGameState, newDepth, childIdx, move.Item1, move.Item2, alpha, beta);
+                
                 v = math.min(v, actionPair.Item1);
 
                 if (v == actionPair.Item1)
@@ -133,7 +108,6 @@ public class AlphaBetaAgent : Agents
                 beta = math.min(beta, v);
 
             }
-
             return (v, minAction.Item1, minAction.Item2);
         }
         else
@@ -158,17 +132,12 @@ public class AlphaBetaAgent : Agents
 
             foreach ((DeployMoves, AttackMoves) move in legalMoves)
             {
-                //print(agentsList[agentIdx].agentName + " " + move.Item1.toTerritory);
-                
                 GameState.AbstractAgentGameState.AgentGameState succGameState =
                     gameState.generateSuccessorGameState(move.Item1, move.Item2, agentsList[agentIdx].agentName);
                 exploredGameStates += 1;
                 
+                (int, DeployMoves, AttackMoves) actionPair = alphaBetaRecursive(succGameState, newDepth, childIdx, move.Item1, move.Item2, alpha, beta);
                 
-                (int, DeployMoves, AttackMoves) actionPair = miniMaxRecursive(succGameState, newDepth, childIdx, move.Item1, move.Item2, alpha, beta);
-            
-                //So this action stays null
-
                 v = math.max(v, actionPair.Item1);
 
                 if (v == actionPair.Item1)
@@ -181,16 +150,10 @@ public class AlphaBetaAgent : Agents
                     return (v, move.Item1, move.Item2);
                 }
 
-
                 alpha = math.max(alpha, v);
             }
 
             return (v, maxAction.Item1, maxAction.Item2);
-            
-            
         }
-      
-
     }
-    
 }

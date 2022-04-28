@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿/**
+ * Class responsible for representing an Attack Move
+ */
 public class AttackMoves
 {
     public string fromTerritory;

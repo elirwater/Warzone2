@@ -1,26 +1,21 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using JetBrains.Annotations;
-using UnityEditor;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
-public class GameState : MonoBehaviour
+/**
+ * Master class for representing the Warzone2.0 GameState
+ */
+public class GameState
 {
-
     public List<Territories> currentMapState;
     private List<Regions> regions;
     private List<Agents> agentsList;
-
     private List<int> agentSpawnTerritoryIndexes = new List<int>();
     private bool isFakeGameState;
 
     //Dict that stores the agentID as a key and the List<Territories for that agent, makes for faster indexing
     IDictionary<string, List<Territories>> territoriesByAgent = new Dictionary<string, List<Territories>>();
-    
     
     public GameState(List<Territories> startingMapState, List<Regions> startingRegionState, List<Agents> agents, bool fakeGameState)
     {
@@ -28,9 +23,7 @@ public class GameState : MonoBehaviour
         regions = startingRegionState;
         agentsList = agents;
         isFakeGameState = fakeGameState;
-
-
-        //Legit terrible solution
+        
         if (isFakeGameState)
         {
             updateAgentTerritoryLists();
@@ -70,25 +63,21 @@ public class GameState : MonoBehaviour
             }
         }
     }
+
     
-
-
     /**
      * Updates the gameState for the round
      * Re-populates agentTerritoryDict
      * Updates each region to see if there is an occupier
      * Checks Game-over conditions
      */
-
     public void nextRound()
     {
         updateAgentTerritoryLists();
         updateRegionalOccupiers();
         checkDeadAgents();
-
     }
-
-
+    
 
     /**
      * CALLED BY the controller every round
@@ -160,39 +149,38 @@ public class GameState : MonoBehaviour
         }
     }
 
-
+    /**
+     * Checks if the game has ended by only using the map
+     */
     public bool checkGameOverConditions()
     {
-
         List<string> occupiers = new List<string>();
         foreach (Territories t in currentMapState)
         {
             occupiers.Add(t.occupier);
         }
         int uniqueOccupiers = occupiers.Distinct().Count();
+
         if (uniqueOccupiers == 1)
         {
             return true;
         }
 
         // Another conditional to check for only 1 agent remaining on the map with unconquered territory
-        if (uniqueOccupiers == 2 && occupiers.Distinct().Contains("unconquered"))
+        if (uniqueOccupiers == 2 && occupiers.Distinct().Contains("unconquered") && agentsList.Count > 1)
         {
             return true;
-        }
-        
-        
-
+        } 
         return false;
-
     }
 
 
     
-    // This  method is only called after the game is already found to have terminated
+    /**
+     * Finds which agent won the game after the game has been ended
+     */
     public string findWinner()
     {
-         
         List<string> occupiers = new List<string>();
         foreach (Territories t in currentMapState)
         {
@@ -215,12 +203,10 @@ public class GameState : MonoBehaviour
                 }
             }
         }
-
         throw new System.Exception("Failed to find winner after gameState was terminated");
     }
 
-
-
+    
     /**
      * Class abstract agent has access to, used to update all fields of abstract agent each round
      * NOTE: individual agents DO NOT have access to this class -> in addition, because the gameState field is private
@@ -251,7 +237,6 @@ public class GameState : MonoBehaviour
             {
                 throw new System.Exception("Attempted access of getTerritories by an unknown Agent");
             }
-            
         }
 
         /**
@@ -264,8 +249,7 @@ public class GameState : MonoBehaviour
             return regionsList;
         }
 
-
-
+        
         /**
          * CALLED BY an agent requesting to see their frontline, i.e. the territories that touch unconquered or enemy occupied territories
          * return COPY of territory list for this abstractAgent, preserving gameState
@@ -309,7 +293,6 @@ public class GameState : MonoBehaviour
             List<Territories> territories = gameState.currentMapState;
             foreach (Territories t in territories)
             {
-                // Prolly should be returning a copy 
                 if (t.territoryName == name)
                 {
                     return t;
@@ -317,7 +300,6 @@ public class GameState : MonoBehaviour
             }
 
             throw new System.Exception("Could not locate territory");
-
         }
 
         
@@ -341,10 +323,8 @@ public class GameState : MonoBehaviour
                     }
                 }
             }
-
             return finalArmiesValue;
         }
-        
         
         
         /**
@@ -374,8 +354,7 @@ public class GameState : MonoBehaviour
                 Territories t2 = gameState.currentMapState[gameState.getTerritoryIndex(territory2)];
                 return Vector2.Distance(t1.centerCord, t2.centerCord);
             }
-            
-            
+
             public List<string> getOpponents(string agentName)
             {
                 List<string> opponents = new List<string>();
@@ -386,7 +365,6 @@ public class GameState : MonoBehaviour
                         opponents.Add(agent.agentName);
                     }
                 }
-            
                 return opponents;
             }
             
@@ -398,7 +376,6 @@ public class GameState : MonoBehaviour
              */
             public int generateScore(string agentName)
             {
-                // REPEATED CODE, already exists in protected abstract agent class!
                 int finalArmiesValue = 5;
                 foreach (Agents agent in gameState.agentsList)
                 {
@@ -418,8 +395,9 @@ public class GameState : MonoBehaviour
                 return finalArmiesValue + gameState.territoriesByAgent[agentName].Count;
             }
 
-
-            
+            /**
+             * Generates a new successor fake gameState given a deploy and attack move
+             */
             public AgentGameState generateSuccessorGameState(DeployMoves dMove, AttackMoves aMove, string agentName)
             {
 
@@ -434,32 +412,40 @@ public class GameState : MonoBehaviour
 
                 g.updateDeploy(new List<(string, List<DeployMoves>)>(){(agentName, new List<DeployMoves>(){dMove})});
                 g.updateAttack(new List<(string, List<AttackMoves>)>(){(agentName, new List<AttackMoves>(){aMove})});
-
-                // A bit convuluded
+                
                 AbstractAgentGameState abs = new AbstractAgentGameState(g);
                 return new AgentGameState(abs);
             }
 
+            /**
+             * Fetches the agents in this gameState
+             */
             public List<Agents> getAgents()
             {
                 return gameState.agentsList;
             }
 
-
+            /**
+             * Checks game over in this gameState
+             */
             public bool checkGameOverConditions()
             {
                 return gameState.checkGameOverConditions();
             }
 
+            /**
+             * Finds winner in this gameState
+             */
             public string findWinner()
             {
                 return gameState.findWinner();
             }
             
-            
+            /**
+             * Generates a list of legal moves available to the agent given the current gameState
+             */
             public List<(DeployMoves, AttackMoves)> generateLegalMoves(string agentName)
             {
-
                 // Generate a list of neighboring enemy territories (we are excluding internal troop transfers for recursive load issues)
                 // List is structured as fromTerritory -> toTerritory
                 List<(Territories, Territories)> neighboringEnemyTerritoriesTuple = new List<(Territories, Territories)>();
@@ -476,7 +462,6 @@ public class GameState : MonoBehaviour
                             frontlineAttackingTerritories.Add(territory);
                             neighboringEnemyTerritoriesTuple.Add((territory, t));
                         }
-                        
                     }
                 }
 
@@ -485,8 +470,6 @@ public class GameState : MonoBehaviour
                 {
                     if (territory.Item1.armies + abstractAgentGameState.getArmies(agentName) >= territory.Item2.armies)
                     {
-                        // Doing it like this to make everything much simpler
-
                         DeployMoves dMove = new DeployMoves(territory.Item1.territoryName,
                             abstractAgentGameState.getArmies(agentName));
 
@@ -495,10 +478,7 @@ public class GameState : MonoBehaviour
                         moves.Add((dMove, aMove));   
                     }
                 }
-                
-                
                 return moves;
-           
             }
 
 
@@ -511,29 +491,17 @@ public class GameState : MonoBehaviour
                 List<Territories> territories = gameState.currentMapState;
                 foreach (Territories t in territories)
                 {
-                    // Prolly should be returning a copy 
                     if (t.territoryName == name)
                     {
                         return t;
                     }
                 }
-
                 throw new System.Exception("Could not locate territory");
-
             }
 
         }
         
     }
-
-    
-
-    // TODO: GAME STATE SHOULD BE CHECKING THAT
-    // 1) Moves are valid
-    // 2) Moves are from the correctPlayer
-    // 3) Illegal number of armies being deployed
-    // FOR ALL OF THESE< SUPER BIG ISSUE WITH NOT CHECKING, one agent can mess up the entire map
-    // THIS IS ALL SUPER HARD, IGNORE IT FOR NOW
 
     /**
      * Input parameters: List<agentName, List<DeployMoves>)
@@ -594,13 +562,11 @@ public class GameState : MonoBehaviour
      */
     public void updateAttack(List<(string, List<AttackMoves>)> movesPerAgent)
     {
-        //TODO All of this needs to be thoroughly tested
         System.Random rand = new System.Random();
 
         // List<(AgentName, List<AttackMoves)>
         List<(string, List<AttackMoves>)> shuffledList = movesPerAgent.OrderBy(_ => rand.Next()).ToList();
-
-
+        
         int remainingMoves = 0;
         foreach ((string, List<AttackMoves>) move in shuffledList)
         {
@@ -657,24 +623,20 @@ public class GameState : MonoBehaviour
                             fromTerritory.armies -= attackingArmies;
                         }   
                     }
-
                     remainingMoves -= 1;
                 }
             }
-
             currentMoveIdx += 1;
         }
     }
     
     
-
-
+    
     /**
      * Helper function for updateAttack which grabs the index of a given territory in the currentMapState
      */
     private int getTerritoryIndex(string territoryName)
     {
-
         for (int i = 0; i < currentMapState.Count; i++)
         {
             if (currentMapState[i].territoryName == territoryName)
@@ -702,21 +664,4 @@ public class GameState : MonoBehaviour
             return false;
         }
     }
-    
-    
-    
-
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
 }

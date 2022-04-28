@@ -595,10 +595,10 @@ MonoBehaviour:
     dfsAgent: 0
     bfsAgent: 0
     testingAgent: 0
-    alphaBetaAgent: 0
+    alphaBetaAgent: 1
     miniMaxAgent: 0
     expectiMaxAgent: 0
-    MCTSAgent: 2
+    MCTSAgent: 1
   analytics:
     analyticsOn: 0
     numSimulatedGames: 0

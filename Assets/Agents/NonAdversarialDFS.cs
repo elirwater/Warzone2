@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 
-
 /**
  * Generic DFS Agent that attacks and deploys on the map based on the order the search algorithm visited nodes
  * This agent is not capable of interacting with other agents
@@ -8,15 +7,12 @@ using System.Collections.Generic;
 public class NonAdversarialDFS : Agents
 {
     
-    // A list of territories in  the order that DFS visits them, equivalent to visited
     private List<Territories> DFSOrderedTerritories = new List<Territories>();
-
-
+    
     public NonAdversarialDFS()
     {
         agentName = "DFSAgent";
     }
-    
     
     public override List<DeployMoves> generateDeployMoves()
     {
@@ -45,7 +41,9 @@ public class NonAdversarialDFS : Agents
         return moves;
     }
 
-
+    /**
+     * Generates the list of visited territories in the order DFS visits them
+     */
     private void DFS(Territories territory)
     { 
         Stack<Territories> stack = new Stack<Territories>();
@@ -67,7 +65,4 @@ public class NonAdversarialDFS : Agents
             }
         }
     }
-    
-    
-    
 }

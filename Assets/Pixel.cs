@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿/**
+ *  Class for representing a pixel on the map
+ */
 public class Pixel
 {
-    
     public string territoryName;
     public string regionName;
     public int value;
@@ -19,5 +17,4 @@ public class Pixel
         this.isBorder = false;
         this.isOcean = false;
     }
-
 }

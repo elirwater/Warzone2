@@ -7,27 +7,28 @@ using Unity.Mathematics;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+/**
+ * Class responsible for controlling the progression of the game and calling every other script ->
+ * Controller operates both on spacebar to progress the round, or a series of values telling it the number of games to
+ * play and the number of rounds to attempt in each game
+ */
 public class Controller : MonoBehaviour
 {
     private GameState gameStateObj;
     private MapGeneration mapState;
     private MapRendering mapRendering;
-
     private List<Agents> agents;
-
-
     private Agents inGameAgent;
     private Agents inGameAgent2;
     private Agents inGameAgent3;
     private Agents inGameAgent4;
     private Agents inGameAgent5;
-
-    
     private bool isGameOver;
     
 
-    
-
+    /**
+     * Menu in editor for selecting the map generation style
+     */
     [System.Serializable]
     public class MapGenerationData
     {
@@ -38,12 +39,12 @@ public class Controller : MonoBehaviour
         public int width;
         public int smoothIterations;
         [Range(0, 100)] public int randomFillPercent;
-
     }
-
     public MapGenerationData mapGenerationData;
     
-    
+    /**
+     * Menu in editor for selecting which agents are playing and how many of each
+     */
     [System.Serializable]
     public class AgentData
     {
@@ -55,15 +56,13 @@ public class Controller : MonoBehaviour
         public int miniMaxAgent;
         public int expectiMaxAgent;
         public int MCTSAgent;
-
     }
-
     public AgentData agentData;
 
     
-    
-    
-    
+    /**
+     * Menu in editor for selecting which analytic mode you want to turn on
+     */
     [System.Serializable]
     public class Analytics
     {
@@ -71,10 +70,12 @@ public class Controller : MonoBehaviour
         public int numSimulatedGames;
         public int numPlayoutRounds;
     }
-
     public Analytics analytics;
     
     
+    /**
+     * Initializes the game based on the inputted editor menu parameters
+     */
     private void Start()
     {
         initializeGame();
@@ -85,8 +86,7 @@ public class Controller : MonoBehaviour
             {
                 generateAnalyticForXGames(analytics.numSimulatedGames, analytics.numPlayoutRounds);
             }
-        
-
+            
             if (analytics.numPlayoutRounds > 0 && analytics.numSimulatedGames == 0)
             {
                 generateAnalytics(analytics.numPlayoutRounds);
@@ -101,30 +101,20 @@ public class Controller : MonoBehaviour
     private void initializeGame()
     {
         isGameOver = false;
-        // Note: will need to change in the future when there are multiple agents simultaneously
-        
-        // We first instantiate the two of the core objets used by the controller, the map and the mapRenderer
+
         mapState = FindObjectOfType<MapGeneration>();
         mapRendering = FindObjectOfType<MapRendering>();
         
-        // We grab our map, which is a list of territories and feed it into the GameState 
         List<Territories> territories = mapState.getTerritories();
         
         // We invoke the rendering aspect of the map after 1 second (due to how long the map takes to generate)
         Invoke("updateMapForRendering", 1f);
         
-
-
-
         agents = new List<Agents>();
         instantiateAgentsFromEditor();
         
-        
-        
         // We then generate our GameState class which controls all aspects of the game
         gameStateObj = new GameState(new List<Territories>(territories), new List<Regions>(mapState.getRegions()), agents, false);
-
-        
         
         // Now we assign our agent the same GameState object so then can make calls and query the gameState
         foreach (Agents agent in agents)
@@ -143,13 +133,14 @@ public class Controller : MonoBehaviour
         mapRendering.updateMap(mapState.grabMapForRendering());
     }
     
-    
+    /**
+     * Checks if the game is over every tick and whether the spacebar has been pressed to manually advance the game
+     */
     private void Update()
     {
         // A given round is progressed by hitting the space key (for now)
         if (Input.GetKey ("space") && !isGameOver)
         {
-            
             nextRound();
         }
 
@@ -173,19 +164,12 @@ public class Controller : MonoBehaviour
      */
     private void nextRound()
     {
-
         gameStateObj.nextRound();
-    
-
+        
         foreach (Agents agent in agents)
         {
             agent.nextRound();
-            
-            
             List<DeployMoves> deployMovesTestingAgent = agent.generateDeployMoves();
-            
-            //An agent is getting removed, prolly by the gametstate for some reason
-            
             List<(string, List<DeployMoves>)> deployMoves = new List<(string, List<DeployMoves>)>();
             deployMoves.Add((agent.agentName, deployMovesTestingAgent));
             gameStateObj.updateDeploy(deployMoves);
@@ -203,17 +187,14 @@ public class Controller : MonoBehaviour
         {
             updateMapForRendering();   
         }
-
-
+        
         gameStateObj.updateRegionalOccupiers();
         if (gameStateObj.checkGameOverConditions())
         {
-            print("GAME HAS ENDED");
+            print("GAME OVER");
             isGameOver = true;
         }
-
     }
-
     
     
     /**
@@ -242,12 +223,11 @@ public class Controller : MonoBehaviour
             a.nextRound();
             print(a.getStringAnalytics());
         }
-        
     }
     
-    
-    
-    
+    /**
+     * Generates analytics for a certain number of games with a cap on a certain number of rounds
+     */
     private void generateAnalyticForXGames(int numGames, int numRounds)
     {
 
@@ -257,20 +237,15 @@ public class Controller : MonoBehaviour
         IDictionary<string, int> victoriesByAgent =
             new Dictionary<string, int>();
         
-        
         IDictionary<string,  List<int>> roundsToWinByAgent =
             new Dictionary<string, List<int>>();
         
-
         foreach (var a in agents)
         {
             gameInfoByAgent.Add(a.agentName, new List<(int, int, int)>());
             victoriesByAgent.Add(a.agentName, 0);
             roundsToWinByAgent.Add(a.agentName, new List<int>());
         }
-        
-        
-        
         
         for (int j = 0; j < numGames; j++)
         {
@@ -295,7 +270,6 @@ public class Controller : MonoBehaviour
                                 winningAgent = a;
                             }
                         }
-
                         roundsToWinByAgent[winningAgent.agentName].Add(i);
                         victoriesByAgent[winningAgent.agentName] += 1;
 
@@ -303,15 +277,13 @@ public class Controller : MonoBehaviour
                     }
                 }
             }
+            // Sometimes the agents have edge-case errors that we need to prevent otherwise our data won't be collected
             catch (Exception e)
             {
-                
             }
             initializeGame();
         }
-
-
-
+        
         foreach (var data in roundsToWinByAgent)
         {
             int sum = 0;
@@ -321,11 +293,8 @@ public class Controller : MonoBehaviour
             }
             print(data.Key + " " + sum / data.Value.Count);
         }
-
     }
-    
-    
-    
+  
     
     /**
      * Instantiates the agents selected from the editor to be in this game
@@ -333,8 +302,6 @@ public class Controller : MonoBehaviour
     private void instantiateAgentsFromEditor()
     {
         System.Random r = new System.Random();
-        
-        // Super manual but not a ton of better ways to do this unless I instantiate a class based on just the string which I'm uncertain of 
         if (agentData.naiveAgent)
         {
             agents.Add(new NaiveAgent());
@@ -403,11 +370,4 @@ public class Controller : MonoBehaviour
         }
         
     }
-
-    
-    
-    
-    
-    
-    
 }

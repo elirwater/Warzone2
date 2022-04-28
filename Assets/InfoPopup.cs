@@ -2,21 +2,21 @@
 using TMPro;
 using System.Text;
 
+/**
+ * Class responsible for displaying the territory info popup you see when a territory is clicked on
+ */
 [RequireComponent(typeof(TMP_Text))]
 public class InfoPopup : MonoBehaviour
 {
     [HideInInspector]
     public string displayText;
-
-    // Start is called before the first frame update
+    
     void Start()
     {
         TMP_Text tmp_text = GetComponent<TMP_Text>();
         tmp_text.text = "";
     }
-
-
-
+    
 
     public void displayTerritoryInfo(string name, string occupier, string region, int RegionalBonusValue, int numNeighbors, int numArmies)
     {
@@ -35,10 +35,7 @@ public class InfoPopup : MonoBehaviour
         s.Append("\n");
         s.Append("Number of Armies: " + numArmies);
         s.Append("\n");
-
-
+        
         tmp_text.text = s.ToString();
     }
-
-
 }

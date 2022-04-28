@@ -1,32 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+/**
+ * Class responsible for random name generation using word sets of counties, cities, and states
+ */
 public class NameGenerator : MonoBehaviour
 {
-
-
-
-
     List<string> usedTerritoryNames;
     List<string> usedRegionNames;
-
-
     string[] inputRegionNames;
     string[] inputTerritoryNames;
-
-
     public bool filesRead;
     
-
-
     private void Start()
     {
         this.filesRead = false;
     }
-    
-    
     
     // Created because the scripts all instantiate at slightly different times and this needs to be read in separetely
     // Start method was not working properly
@@ -39,7 +29,9 @@ public class NameGenerator : MonoBehaviour
         filesRead = true;
     }
 
-
+    /**
+     * Randomly generates a territory name
+     */
     public string generateTerritoryName()
     {
         
@@ -66,6 +58,9 @@ public class NameGenerator : MonoBehaviour
         throw new System.Exception("Failed to generate territory name");
     }
 
+    /**
+     * Randomly generates a region name
+     */
     public string generateRegionName()
     {
         if (!filesRead)
@@ -88,13 +83,13 @@ public class NameGenerator : MonoBehaviour
                 return tempString;
             }
         }
-
         throw new System.Exception("Failed to generate territory name");
-
     }
 
 
-
+    /**
+     * Reads from the input word list files
+     */
     private string[] readFileInput(string fileName)
     {
 
@@ -105,8 +100,5 @@ public class NameGenerator : MonoBehaviour
         string[] lines = System.IO.File.ReadAllLines(@targetDirectory);
 
         return lines;
-
     }
-
-
 }

@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapGeneration : MonoBehaviour{
-
-
+/**
+ * Class responsible for the random and procedural map generation
+ */
+public class MapGeneration : MonoBehaviour
+{
+    
     private int numTerritories;
     private int numRegions;
     private int pointsPerTerritory;
@@ -14,8 +16,6 @@ public class MapGeneration : MonoBehaviour{
     private int smoothIterations;
     [Range(0, 100)] private int randomFillPercent;
     private string seed;
-
-
     private Pixel[,] pixelMap;
     private List<Territories> allTerritories;
     private List<Regions> allRegions;
@@ -23,7 +23,6 @@ public class MapGeneration : MonoBehaviour{
     void Start()
     {
         Controller.MapGenerationData mapGenerationInputData = FindObjectOfType<Controller>().mapGenerationData;
-        
         numTerritories = mapGenerationInputData.numTerritories;
         numRegions = mapGenerationInputData.numRegions;
         width = mapGenerationInputData.width;
@@ -31,12 +30,9 @@ public class MapGeneration : MonoBehaviour{
         pointsPerTerritory = mapGenerationInputData.pointsPerTerritory;     
         smoothIterations = mapGenerationInputData.smoothIterations;
         randomFillPercent = mapGenerationInputData.randomFillPercent;
-        
         System.Random r = new System.Random();
         seed = r.Next(1000000).ToString();
-
         
-
         if (numTerritories < numRegions)
         {
             throw new Exception("Must specify more territories than regions");
@@ -45,35 +41,28 @@ public class MapGeneration : MonoBehaviour{
 
         NoiseGenerator noise = new NoiseGenerator(height, width, smoothIterations, randomFillPercent, seed);
         pixelMap = noise.generatePixelNoiseMap();
-
         allTerritories = new List<Territories>();
         allRegions = new List<Regions>();
-
-
+        
         generateTerritories();
         generateTerritoryBordersAndNeighbors();
         generateRegions();
         calculateRegionalBonusValues();
         instantiateRegionNamesForPixels();
-
-
     }
 
 
-
+    /**
+     * Fetches the pixel map used by the rendering script
+     */
     public Pixel[,] grabMapForRendering()
     {
         return pixelMap;
     }
-
-    public List<Territories> grabMapForAgents()
-    {
-        return null;
-    }
-
-
-
-    // Generates all territories for this map
+    
+    /**
+     * Generates each territory randomly on the map
+     */
     private void generateTerritories()
     {
 
@@ -85,16 +74,12 @@ public class MapGeneration : MonoBehaviour{
             int rx = r.Next(0, width);
             int ry = r.Next(0, height);
             Vector2 centerCord = new Vector2(rx, ry);
-
-
-
+            
             string randomName = Component.FindObjectOfType<NameGenerator>().generateTerritoryName();
             Territories newTerritory = new Territories(centerCord, randomName);
             allTerritories.Add(newTerritory);
-            
         }
-
-
+        
         // Populating the pixelMap with our territories by iterating through all pixels and assigning the current pixels territory to be the closest territory center
         for (int i = 0; i < width; i++)
         {
@@ -129,7 +114,10 @@ public class MapGeneration : MonoBehaviour{
             }
         }
     }
-
+    
+    /**
+     * Generates each territories list of neighbors and also finds which pixels are borders
+     */
     private void generateTerritoryBordersAndNeighbors()
     {
         for (int i = 0; i < width; i++)
@@ -150,7 +138,6 @@ public class MapGeneration : MonoBehaviour{
                         if (pixelMap[i + 1, j].territoryName != currentTerritoryName && !pixelMap[i + 1, j].isOcean)
                         {
                             currentPixel.isBorder = true;
-                            //Could just be refactored as the name with the new changes
                             Territories t = findTerritoryByName(pixelMap[i + 1, j].territoryName);
                             currentTerritory.addNeighbor(t.territoryName);
                         }
@@ -208,12 +195,11 @@ public class MapGeneration : MonoBehaviour{
                 }
             }
         }
-
     }
     
     /**
      * Helper function to get a territory based on the territory name for neighbors
-         */
+     */
     private Territories getTerritoryByName(string name)
     {
         foreach (Territories t in allTerritories)
@@ -227,21 +213,16 @@ public class MapGeneration : MonoBehaviour{
     }
 
 
-
+    /**
+     * Generates the regions on the map
+     */
     private void generateRegions()
     {
-
         List<Territories> territoriesInRegions = new List<Territories>();
-
-
         System.Random r = new System.Random(seed.GetHashCode());
         List<Territories> frontline = new List<Territories>();
         List<int> fetchedIndexes = new List<int>();
-
-
-
-
-
+        
         // Setting spawn territory for each new Region Center
         for (int i = 0; i < numRegions; i++)
         {
@@ -264,15 +245,12 @@ public class MapGeneration : MonoBehaviour{
                     Regions newRegion = new Regions(randomName, 0); //Not great way to do this, should be a NULL value 
                     newRegion.territories.Add(allTerritories[index]);
                     allRegions.Add(newRegion);
-
                     territoriesInRegions.Add(allTerritories[index]);
-
                 }
             }
         }
         
-
-    // Propagates each region center outwards to include additional territories until all Territories are in a region
+        // Propagates each region center outwards to include additional territories until all Territories are in a region
         while (territoriesInRegions.Count < allTerritories.Count)
         {
             List<Territories> tempFrontline = new List<Territories>();
@@ -287,8 +265,7 @@ public class MapGeneration : MonoBehaviour{
                         t.regionName = territory.regionName;
                         tempFrontline.Add(t);
                         territoriesInRegions.Add(t);
-
-                        // Add it to our regional List TODO: replace this with a predicate find function that searches by name, too much looping
+                        
                         foreach (Regions region in allRegions)
                         {
                             if (region.regionName == t.regionName)
@@ -296,20 +273,17 @@ public class MapGeneration : MonoBehaviour{
                                 region.territories.Add((territory));
                             }
                         }
-
                     }
                 }
-
             }
-
-
             frontline = tempFrontline;
-
         }
     }
     
     
-    // Used by the rendering class, avoids excessive cross-script calls
+    /**
+     * Used by the rendering class, avoids excessive cross-script calls
+     */
     private void instantiateRegionNamesForPixels()
     {
         foreach (Pixel p in pixelMap)
@@ -321,11 +295,10 @@ public class MapGeneration : MonoBehaviour{
         }
     }
     
-
-
-
-    // Returns the territory based on the name passed in - instead of storing each territory in each pixel, we are just storing the name so we have to look it up
-    // This is more space efficient and avoids mutation issues if multiple pixels try to modify one territory instance simaltaneously
+    /**
+     * Returns the territory based on the name passed in - instead of storing each territory in each pixel, we are just storing the name so we have to look it up
+     * This is more space efficient and avoids mutation issues if multiple pixels try to modify one territory instance simaltaneously
+     */
     public Territories findTerritoryByName(string territoryName)
     {
         foreach(Territories territory in allTerritories)
@@ -336,11 +309,12 @@ public class MapGeneration : MonoBehaviour{
             }
         }
         throw new Exception("For some reason territory could not be located");
-
     }
     
     
-
+    /**
+     * Finds the region with the given name
+     */
     public Regions findRegionsByName(string regionName)
     {
         foreach(Regions region in allRegions)
@@ -355,7 +329,9 @@ public class MapGeneration : MonoBehaviour{
     }
 
 
-
+    /**
+     * Finds the territory with the given name
+     */
     public List<Territories> getTerritories()
     {
         foreach (var t in allTerritories)
@@ -363,17 +339,20 @@ public class MapGeneration : MonoBehaviour{
             t.occupier = "unconquered";
             t.armies = 3;
         }
-
         return allTerritories;
     }
 
-
+    /**
+     * Returns all regions
+     */
     public List<Regions> getRegions()
     {
         return allRegions;
     }
 
-        //Not sure about this one lol, just generates the value for each region based on the number of territories in it
+    /**
+     * Calculates how much each region is worth in terms of its regional bonus value
+     */
     private void calculateRegionalBonusValues()
     {
         foreach (Regions region in allRegions)
