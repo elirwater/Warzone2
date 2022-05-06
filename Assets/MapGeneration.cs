@@ -19,6 +19,9 @@ public class MapGeneration : MonoBehaviour
     private Pixel[,] pixelMap;
     private List<Territories> allTerritories;
     private List<Regions> allRegions;
+    
+    private IDictionary<string, List<(int, int)>> mapPixelsByTerritory;
+    
 
     void Start()
     {
@@ -43,6 +46,7 @@ public class MapGeneration : MonoBehaviour
         pixelMap = noise.generatePixelNoiseMap();
         allTerritories = new List<Territories>();
         allRegions = new List<Regions>();
+        mapPixelsByTerritory = new Dictionary<string, List<(int, int)>>();
         
         generateTerritories();
         generateTerritoryBordersAndNeighbors();
@@ -110,6 +114,18 @@ public class MapGeneration : MonoBehaviour
                     }
 
                     currentPixel.territoryName = closestTerritory.territoryName;
+                    
+
+                    // Currently untested
+                    if (mapPixelsByTerritory.ContainsKey(closestTerritory.territoryName))
+                    {
+                        mapPixelsByTerritory[closestTerritory.territoryName].Add((i, j));
+                    }
+                    else
+                    {
+                        mapPixelsByTerritory.Add(closestTerritory.territoryName, new List<(int, int)>());
+                        mapPixelsByTerritory[closestTerritory.territoryName].Add((i, j));
+                    }
                 }
             }
         }
@@ -361,4 +377,10 @@ public class MapGeneration : MonoBehaviour
         }
     }
 
+
+
+    public List<(int, int)> getPixelsByTerritory(string territoryName)
+    {
+        return mapPixelsByTerritory[territoryName];
+    }
 }

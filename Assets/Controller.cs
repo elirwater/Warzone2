@@ -110,6 +110,7 @@ public class Controller : MonoBehaviour
         // We invoke the rendering aspect of the map after 1 second (due to how long the map takes to generate)
         Invoke("updateMapForRendering", 1f);
         
+        
         agents = new List<Agents>();
         instantiateAgentsFromEditor();
         
@@ -139,8 +140,9 @@ public class Controller : MonoBehaviour
     private void Update()
     {
         // A given round is progressed by hitting the space key (for now)
-        if (Input.GetKey ("space") && !isGameOver)
+        if (Input.GetKeyDown("space") && !isGameOver)
         {
+            print("jere");
             nextRound();
         }
 
@@ -182,10 +184,41 @@ public class Controller : MonoBehaviour
             attackMoves.Add((agent.agentName, agentAttackMoves));
         }
         gameStateObj.updateAttack(attackMoves);
+        
+        
 
         if (!analytics.analyticsOn)
         {
-            updateMapForRendering();   
+
+            List<string> territoriesToBeUpdated = new List<string>();
+            
+            foreach ((string, List<AttackMoves>) attackMoveByAgent in attackMoves)
+            {
+                foreach (AttackMoves attackMove in attackMoveByAgent.Item2)
+                {
+                    try
+                    {
+                        string modifiedTerritory = attackMove.toTerritory;
+
+                        if (!territoriesToBeUpdated.Contains(modifiedTerritory))
+                        {
+                            territoriesToBeUpdated.Add(modifiedTerritory);
+                        }
+                    }
+                    // Attack move is sometimes null, this is usually handled in the gamestate
+                    catch (Exception e)
+                    {
+                        
+                    }
+                }
+            }
+            
+            
+            //mapRendering.updateByTerritory(territoriesToBeUpdated);
+            
+            mapRendering.updateMap2(mapState.grabMapForRendering(), territoriesToBeUpdated);
+            
+            //updateMapForRendering();   
         }
         
         gameStateObj.updateRegionalOccupiers();
@@ -284,14 +317,16 @@ public class Controller : MonoBehaviour
             initializeGame();
         }
         
-        foreach (var data in roundsToWinByAgent)
+        foreach (var data in victoriesByAgent)
         {
-            int sum = 0;
-            foreach (var dataPoint in data.Value)
-            {
-                sum += dataPoint;
-            }
-            print(data.Key + " " + sum / data.Value.Count);
+            print(data.Key);
+            print(data.Value);
+            // int sum = 0;
+            // foreach (var dataPoint in data.Value)
+            // {
+            //     sum += dataPoint;
+            // }
+            // print(data.Key + " " + sum / data.Value.Count);
         }
     }
   
@@ -302,12 +337,7 @@ public class Controller : MonoBehaviour
     private void instantiateAgentsFromEditor()
     {
         System.Random r = new System.Random();
-        if (agentData.naiveAgent)
-        {
-            agents.Add(new NaiveAgent());
-            return;
-        }
-        
+
         if (agentData.dfsAgent)
         {
             agents.Add(new NonAdversarialDFS());
@@ -318,6 +348,10 @@ public class Controller : MonoBehaviour
         {
             agents.Add(new NonAdversarialBFS());
             return;
+        }
+        if (agentData.naiveAgent)
+        {
+            agents.Add(new NaiveAgent());
         }
 
         if (agentData.testingAgent > 0)
@@ -335,7 +369,7 @@ public class Controller : MonoBehaviour
             for (int i = 0; i < agentData.alphaBetaAgent; i++)
             {
                 Agents a = new AlphaBetaAgent();
-                a.agentName = a.agentName + "_" + r.Next(1000);
+                a.agentName = a.agentName;
                 agents.Add(a);   
             }
         }
@@ -364,7 +398,7 @@ public class Controller : MonoBehaviour
             for (int i = 0; i < agentData.MCTSAgent; i++)
             {
                 Agents a = new MCTSAgent();
-                a.agentName = a.agentName + "_" + r.Next(1000);
+                a.agentName = a.agentName;
                 agents.Add(a);   
             }
         }

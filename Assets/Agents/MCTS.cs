@@ -16,7 +16,7 @@ public class MCTSAgent : Agents
     
     public override List<DeployMoves> generateDeployMoves()
     {
-        findNextMove(20);
+        findNextMove(10);
         return new List<DeployMoves>(){currentRoundMove.Item1};
     }
 
@@ -264,9 +264,6 @@ public class MCTSAgent : Agents
         }
     }
     
-    /**
-     * Performs the selection step in MCTS
-     */
     private NodeT selection(NodeT rootNode) {
         NodeT node = rootNode;
         while (node.children.Count != 0) {
@@ -275,9 +272,6 @@ public class MCTSAgent : Agents
         return node;
     }
 
-    /**
-     * Performs expansion step in MCTS
-     */    
     private void expansion(NodeT node)
     {
         List<State> possibleStates = node.state.getAllPossibleStates();
@@ -288,16 +282,11 @@ public class MCTSAgent : Agents
             node.children.Add(newNode);
         }
     }
-    
-    /**
-     * Performs simulation step in MCTS
-     */
     private string simulation(NodeT node)
     {
         NodeT tempNode = node;
         State tempState = tempNode.state;
         SimulatedPlayoutStates playoutStatus = tempState.playoutStatus;
-        
         if (playoutStatus == SimulatedPlayoutStates.agentVictory && tempState.victoriousAgent == tempState.getOpponent())
         {
             if (tempNode.parent != null)
@@ -306,20 +295,15 @@ public class MCTSAgent : Agents
                 return tempState.victoriousAgent;     
             }
         }
-
         while (playoutStatus == SimulatedPlayoutStates.inProgress)
         {
             tempState.toggleAgent();
             tempState.randomPlay();
             playoutStatus = tempState.playoutStatus;
         }
-
         return tempState.victoriousAgent;
     }
-
-    /**
-     * Performs backpropagation step in MCTS
-     */
+    
     private void backPropagation(NodeT nodeToExplore, string agentName)
     {
         NodeT tempNode = nodeToExplore;
