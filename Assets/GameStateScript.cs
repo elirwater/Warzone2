@@ -136,9 +136,10 @@ public class GameState
         foreach (Regions region in regions)
         {
             List<string> occupiers = new List<string>();
-            foreach (Territories territory in region.territories)
+            foreach (string territory in region.territories)
             {
-                occupiers.Add(territory.occupier);
+                Territories t = currentMapState[getTerritoryIndex(territory)];
+                occupiers.Add(t.occupier);
             }
             int uniqueOccupiers = occupiers.Distinct().Count();
             if (uniqueOccupiers == 1)

@@ -262,7 +262,7 @@ public class MapGeneration : MonoBehaviour
 
                     // Adds our center spawn territory to a new region (and instantiates new region)
                     Regions newRegion = new Regions(randomName, 0); //Not great way to do this, should be a NULL value 
-                    newRegion.territories.Add(allTerritories[index]);
+                    newRegion.territories.Add(allTerritories[index].territoryName);
                     allRegions.Add(newRegion);
                     territoriesInRegions.Add(allTerritories[index]);
                 }
@@ -289,7 +289,7 @@ public class MapGeneration : MonoBehaviour
                         {
                             if (region.regionName == t.regionName)
                             {
-                                region.territories.Add((territory));
+                                region.territories.Add((territory.territoryName));
                             }
                         }
                     }

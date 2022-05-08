@@ -122,7 +122,7 @@ public class Controller : MonoBehaviour
         
         
         updateMapForRendering();
-        mapRendering.renderMapOnGameStart();
+        mapRendering.renderEntireMap();
     }
 
 

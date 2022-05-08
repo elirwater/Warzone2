@@ -7,7 +7,7 @@ public class Regions
 {
     public string regionName;
     
-    public List<Territories> territories;
+    public List<string> territories;
     public int regionalBonusValue;
     public string occupier;
 
@@ -15,7 +15,7 @@ public class Regions
     {
         this.regionName = regionName;
         this.regionalBonusValue = regionalBonusValue;
-        this.territories = new List<Territories>();
+        this.territories = new List<string>();
         this.occupier = "unconquered";
     }
 
