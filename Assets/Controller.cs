@@ -107,10 +107,7 @@ public class Controller : MonoBehaviour
         
         List<Territories> territories = mapState.getTerritories();
         
-        // We invoke the rendering aspect of the map after 1 second (due to how long the map takes to generate)
-        Invoke("updateMapForRendering", 1f);
-        
-        
+
         agents = new List<Agents>();
         instantiateAgentsFromEditor();
         
@@ -122,7 +119,12 @@ public class Controller : MonoBehaviour
         {
             agent.setAbstractAgentGameState(new GameState.AbstractAgentGameState(gameStateObj));
         }
+        
+        
+        updateMapForRendering();
+        mapRendering.renderMapOnGameStart();
     }
+
 
 
     /**
@@ -131,7 +133,7 @@ public class Controller : MonoBehaviour
      */
     private void updateMapForRendering()
     {
-        mapRendering.updateMap(mapState.grabMapForRendering());
+        mapRendering.updatePixelMap(mapState.grabMapForRendering());
     }
     
     /**
@@ -142,7 +144,6 @@ public class Controller : MonoBehaviour
         // A given round is progressed by hitting the space key (for now)
         if (Input.GetKeyDown("space") && !isGameOver)
         {
-            print("jere");
             nextRound();
         }
 
@@ -189,6 +190,7 @@ public class Controller : MonoBehaviour
 
         if (!analytics.analyticsOn)
         {
+            // TODO: should be offloaded to the GameState class -> dumb to check it here (just do it in the updateAttack method) and make it a list with a method to grab that list 
 
             List<string> territoriesToBeUpdated = new List<string>();
             
@@ -213,13 +215,10 @@ public class Controller : MonoBehaviour
                 }
             }
             
-            
-            //mapRendering.updateByTerritory(territoriesToBeUpdated);
-            
-            mapRendering.updateMap2(mapState.grabMapForRendering(), territoriesToBeUpdated);
-            
-            //updateMapForRendering();   
+            mapRendering.renderMapByModifiedTerritories(territoriesToBeUpdated);
         }
+
+        updateMapForRendering();
         
         gameStateObj.updateRegionalOccupiers();
         if (gameStateObj.checkGameOverConditions())

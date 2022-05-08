@@ -10,141 +10,92 @@ public class MapRendering : MonoBehaviour{
     public GameObject test;
 
     private static Pixel[,] pixelMap;
-    private static int width;
-    private static int height;
+    private static int mapWidth;
+    private static int mapHeight;
+
+    private static double textureWidth;
+    private static double textureHeight;
+    private static double mapWidthToTextureWidthRatio;
+    private static double mapHeightToTextureHeightRatio;
+
+    private static int textureToScreenSizeScalingFactor;
+    
     private string targetedTerritoryName;
     private string targetedRegionName;
     private MapGeneration mapGenerationClass;
-
-
-    private Texture2D texture;
-
-
-    //TODO: SOLUTION -> JUST STORE a tuple of cords that make up each territory and only update it based on that
+    
+    private Texture2D textureMap;
 
     private void Start()
     {
         Controller.MapGenerationData mapGenerationInputData = FindObjectOfType<Controller>().mapGenerationData;
         mapGenerationClass = FindObjectOfType<MapGeneration>();
-        width = mapGenerationInputData.width;
-        height = mapGenerationInputData.height;
-
-
-
-
-        texture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB565, true);
-        texture.name = "Procedural Texture";
-
-        var scale = (Screen.height / 2.0) / Camera.main.orthographicSize;
-
-        transform.localScale = new Vector3((float) (texture.width) / 3, (float) (texture.height) / 3, 1);
-
-
-        GetComponent<MeshRenderer>().material.mainTexture = texture;
-        GetComponent<MeshRenderer>().material.shader = Shader.Find("Unlit/Texture");
-
-
-
-        //texture.Apply();
-
-
-        //float xTile = Screen.width / T1.width, yTile = Screen.height / T1.height;
-
-
-       // Invoke("FillTexture", 5f);
-
-
-
-
-        //FillTexture2();
-
-    }
-
-
-
-    private void FillTexture2()
-    {
-        int resWidth = Screen.width - 1;
-        int resHeight = Screen.height - 1;
-
-
-        for (int y = 0; y < resWidth; y++)
-        {
-            for (int x = 0; x < resHeight; x++)
-            {
-                texture.SetPixel(x, y, Color.red);
-            }
-        }
-
-        texture.Apply();
-    }
-
-    
-    // Only runs on instantiation
-
-    private void FillTexture()
-    {
-
-
-        //print(Screen.width);
-        //print(Screen.height);
-
-        // (int)Math.Ceiling((double)nItems / (double)nItemsPerPage);
-
-        double adjustedWidth = (double) texture.width / width;
-        double adjustedHeight = (double) texture.height / height;
-
-
-        //print(adjustedWidth);
-        //print(adjustedHeight);
-
-
-
-
-
-        //float xTile = Screen.width / T1.width, yTile = Screen.height / T1.height;!!!!!!!!!!!!!!!!
-
-
-        // TODO: need a way to lower the resolution
+        mapWidth = mapGenerationInputData.width;
+        mapHeight = mapGenerationInputData.height;
         
-        // TODO: figure out a way to do this in chunks (combine both methods)
+        // NOTE: arbitrarily choosing 3 so there is room to display additional info on the sides of the game window
+        textureToScreenSizeScalingFactor = 3;
 
-        for (int i = 0; i < width; i++)
+        textureWidth = (double) Screen.width / textureToScreenSizeScalingFactor;
+        textureHeight = (double) Screen.height / textureToScreenSizeScalingFactor;
+        
+
+        // Texture is originally set to be the resolution of the game window, then a scaling factor is applied
+        textureMap = new Texture2D((int) textureWidth, (int)textureHeight, TextureFormat.RGB565, true);
+
+        transform.localScale = new Vector3((float) (textureMap.width), (float) (textureMap.height), 1);
+        transform.localPosition = Camera.main.ScreenToViewportPoint(Vector3.one * 0.5f);
+        
+        
+        textureWidth = textureMap.width;
+        textureHeight = textureMap.height;
+        
+        mapWidthToTextureWidthRatio = textureWidth / mapWidth;
+        mapHeightToTextureHeightRatio = textureHeight / mapHeight;
+        
+        GetComponent<MeshRenderer>().material.mainTexture = textureMap;
+        GetComponent<MeshRenderer>().material.shader = Shader.Find("Unlit/Texture");
+    }
+    
+    
+    /**
+     * Creates the texture map on game start of our game map
+     */
+    public void renderMapOnGameStart()
+    {
+        
+        print(mapWidthToTextureWidthRatio);
+        print(mapHeightToTextureHeightRatio);
+        
+        for (int i = 0; i < mapWidth; i++)
         {
-            for (int j = 0; j < height; j++)
+            for (int j = 0; j < mapHeight; j++)
             {
-
-                int pixelX = (int) (i / adjustedWidth);
-                int pixelY = (int) (j / adjustedHeight);
-
-
-
-
                 Pixel currentPixel = pixelMap[i, j];
-
-                //placeholder color to instantiate the variable
+                
                 Color color = findMapPixelColor(currentPixel);
                 
-                for (int x = 0; x < adjustedWidth; x++)
+                // Uses chunking system based on texture dimensions to update multiple texture pixels for 1 map pixel
+                for (int x = 0; x < mapWidthToTextureWidthRatio; x++)
                 {
-                    for (int y = 0; y < adjustedHeight; y++)
+                    for (int y = 0; y < mapHeightToTextureHeightRatio; y++)
                     {
-                        texture.SetPixel((int) (x + (i * adjustedWidth)), (int) (y + (j * adjustedHeight)), color);
+                        textureMap.SetPixel((int) (x + (i * mapWidthToTextureWidthRatio)), 
+                            (int) (y + (j * mapHeightToTextureHeightRatio)), color);
                     }
                 }
             }
         }
-
-        texture.Apply();
+        textureMap.Apply();
     }
 
-
-    public void updateByTerritory(List<string> territoriesToBeUpdated)
+    
+    /**
+     * Updates the map texture based on which territories were modified to save computational resources (instead
+     * of iterating through a massive array of pixels when most of them remain unchanged)
+     */
+    public void renderMapByModifiedTerritories(List<string> territoriesToBeUpdated)
     {
-        double adjustedWidth = (double) texture.width / width;
-        double adjustedHeight = (double) texture.height / height;
-        
-        
         foreach (string territoryName in territoriesToBeUpdated)
         {
             List<(int, int)> mapPixelsToBeUpdates = mapGenerationClass.getPixelsByTerritory(territoryName);
@@ -154,24 +105,24 @@ public class MapRendering : MonoBehaviour{
                 Pixel p = pixelMap[mapPixel.Item1, mapPixel.Item2];
                 Color color = findMapPixelColor(p);
                 
-                //now for the chunking part, updating the chunk of pixels by the adjusted texture size
-                for (int i = 0; i < adjustedWidth; i++)
+                // Uses chunking system based on texture dimensions to update multiple texture pixels for 1 map pixel
+                for (int i = 0; i < mapWidthToTextureWidthRatio; i++)
                 {
-                    for (int j = 0; j < adjustedHeight; j++)
+                    for (int j = 0; j < mapHeightToTextureHeightRatio; j++)
                     {
-                        // Updates the map in chuncks based on the original texture size
-                        texture.SetPixel((int) (i + (mapPixel.Item1 * adjustedWidth)), (int) (j + (mapPixel.Item2 * adjustedHeight)), color);
+                        textureMap.SetPixel((int) (i + (mapPixel.Item1 * mapWidthToTextureWidthRatio)), 
+                            (int) (j + (mapPixel.Item2 * mapHeightToTextureHeightRatio)), color);
                     }
                 }
-                
             }
         }
-        texture.Apply();
+        textureMap.Apply();
     }
 
-
-
-
+    
+    /**
+     * Determines the color of a given map pixel
+     */
     private Color findMapPixelColor(Pixel p)
     {
         Color currentColor = Color.red;
@@ -219,35 +170,39 @@ public class MapRendering : MonoBehaviour{
 
 
 
-private void Update()
+    private void Update()
     {
         //Checks if we have clicked on a given territory
         if (Input.GetMouseButtonDown(0) && pixelMap != null)
         {
+
             Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            GameObject o = GameObject.Find("MapTextureQuad");
+            RectTransform rt = o.GetComponent<RectTransform>();
             
             int mapX = 0;
             int mapY = 0;
             
-
+            
             if (worldPosition.x >= 0)
             {
-                mapX = (int)(worldPosition.x + width / 2);
+                mapX = (int)((worldPosition.x + textureWidth / 2) / mapWidthToTextureWidthRatio);
             }
             if (worldPosition.x < 0)
             {
-                mapX = (int)((width / 2) + worldPosition.x);
+                mapX = (int)(((textureWidth / 2) + worldPosition.x) / mapWidthToTextureWidthRatio);
             }
             if (worldPosition.z >= 0)
             {
-                mapY = (int)(worldPosition.z + height / 2);
+                mapY = (int)((worldPosition.z + textureHeight / 2) / mapHeightToTextureHeightRatio);
             }
             if (worldPosition.z < 0)
             {
-                mapY = (int)((height / 2) + worldPosition.z);
+                mapY = (int)(((textureHeight / 2) + worldPosition.z) / mapHeightToTextureHeightRatio);
             }
-
-   
+            
+            
             // Click outside of map to unselect a territory/region
             try
             {
@@ -255,10 +210,10 @@ private void Update()
                 targetedRegionName = pixelMap[mapX, mapY].regionName;
                 
                 Territories targetTerritory = Component.FindObjectOfType<MapGeneration>().findTerritoryByName(targetedTerritoryName);
-
+            
                 Regions territoryRegion = Component.FindObjectOfType<MapGeneration>()
                     .findRegionsByName(targetTerritory.regionName);
-
+            
                 Component.FindObjectOfType<InfoPopup>().displayTerritoryInfo(targetedTerritoryName, targetTerritory.getOccupier(),
                     targetTerritory.regionName, territoryRegion.regionalBonusValue, targetTerritory.neighbors.Count, targetTerritory.armies);
             }
@@ -267,85 +222,23 @@ private void Update()
                 targetedRegionName = "";
                 targetedTerritoryName = "";
             }
+            
+            renderMapOnGameStart();
         }
     }
+
+    private void selectTerritoryAndRegion(Vector3 mouseWorldPosition)
+    {
+        
+    }
+
 
     /**
      * Called by the controller to update the pixel map
      */
-    public void updateMap(Pixel[,] inputPixelMap)
+    public void updatePixelMap(Pixel[,] inputPixelMap)
     {
         pixelMap = inputPixelMap;
-        FillTexture();
     }
     
-    
-    public void updateMap2(Pixel[,] inputPixelMap, List<string> territoriesToBeUpdated)
-    {
-        pixelMap = inputPixelMap;
-        updateByTerritory(territoriesToBeUpdated);
-    }
-
-    /**
-     * Draws our gizmos for each pixel in the map
-     */
-    // void OnDrawGizmos()
-    // {
-    //     if (pixelMap != null && Application.isPlaying)
-    //     {
-    //         for (int i = 0; i < width; i++)
-    //         {
-    //             for (int j = 0; j < height; j++)
-    //             {
-    //                 Pixel currentPixel = pixelMap[i, j];
-    //
-    //                 //placeholder color to instantiate the variable
-    //                 Color currentColor = Color.red;
-    //                 
-    //                 if (currentPixel.value != 1)
-    //                 {
-    //                     int territorySeed = mapGenerationClass.findTerritoryByName(currentPixel.territoryName).occupier.GetHashCode();
-    //                     Random.seed = territorySeed;
-    //
-    //                     float r = Random.Range(0f, 1f);
-    //                     float g = Random.Range(0f, 1f);
-    //                     float b = Random.Range(0f, 1f);
-    //
-    //                     currentColor = new Color(r, g, b);
-    //                 }
-    //
-    //                 
-    //                 if (currentPixel.value == 1)
-    //                 {
-    //                     currentColor = new Color(0.353f, 0.733f, 0.812f);
-    //                 }
-    //                 
-    //                 if (currentPixel.isBorder)
-    //                 {
-    //                     currentColor = Color.black;
-    //                 }
-    //                 
-    //                 if (currentPixel.territoryName == targetedTerritoryName)
-    //                 {
-    //                     currentColor = currentColor * 2;
-    //                 }
-    //                 if (currentPixel.regionName == targetedRegionName)
-    //                 {
-    //                     currentColor = currentColor * 2;
-    //                 }
-    //                 
-    //                 
-    //                 Gizmos.color = currentColor;
-    //                 Vector3 pos = new Vector3(-width / 2 + i + .5f, 0, -height / 2 + j + .5f);
-    //
-    //                 
-    //                 //Instantiate(test, pos, Quaternion.identity, test.transform);
-    //                 
-    //                 
-    //                 Gizmos.DrawCube(pos, Vector3.one);
-    //                 
-    //             }
-    //         }
-    //     }
-    // }
 }

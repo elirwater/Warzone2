@@ -337,7 +337,7 @@ GameObject:
   - component: {fileID: 140725177}
   - component: {fileID: 140725181}
   m_Layer: 0
-  m_Name: Quad
+  m_Name: MapTextureQuad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -588,8 +588,8 @@ MonoBehaviour:
     numTerritories: 40
     numRegions: 14
     pointsPerTerritory: 2
-    height: 300
-    width: 250
+    height: 200
+    width: 320
     smoothIterations: 33
     randomFillPercent: 46
   agentData:

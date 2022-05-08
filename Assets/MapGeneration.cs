@@ -148,6 +148,9 @@ public class MapGeneration : MonoBehaviour
                     string currentTerritoryName = currentPixel.territoryName;
                     Territories currentTerritory = findTerritoryByName(currentTerritoryName);
 
+                    
+                    
+                    //TODO: && !pixelMap[i, j + 1].isBorder is the fix, but you need to assign those border pixels to be within territory then...
 
                     if (i + 1 < width)
                     {
@@ -166,7 +169,7 @@ public class MapGeneration : MonoBehaviour
 
                     if (j + 1 < height)
                     {
-                        if (pixelMap[i, j + 1].territoryName != currentTerritoryName && !pixelMap[i, j + 1].isOcean)
+                        if (pixelMap[i, j + 1].territoryName != currentTerritoryName && !pixelMap[i, j + 1].isOcean )
                         {
                             currentPixel.isBorder = true;
                             Territories t = findTerritoryByName(pixelMap[i, j + 1].territoryName);
