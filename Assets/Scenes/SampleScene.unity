@@ -391,8 +391,9 @@ GameObject:
   - component: {fileID: 1627808431}
   - component: {fileID: 1627808430}
   - component: {fileID: 1627808434}
+  - component: {fileID: 1627808435}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: PrimaryCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -492,6 +493,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   percentageOfScreenWidth: 8.5
+--- !u!114 &1627808435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1627808429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c0d12e88e315ab48bf0c4e6bda479b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textObject: {fileID: 5383289964216060636, guid: 6b01aaf68f18a9848aac13a016793834,
+    type: 3}
 --- !u!1 &1744043723
 GameObject:
   m_ObjectHideFlags: 0

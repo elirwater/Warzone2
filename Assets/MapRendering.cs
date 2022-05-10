@@ -22,6 +22,7 @@ public class MapRendering : MonoBehaviour
 
     private string targetedTerritoryName;
     private string targetedRegionName;
+    
     private MapGeneration mapGenerationClass;
 
     private Texture2D textureMap;
@@ -205,6 +206,52 @@ public class MapRendering : MonoBehaviour
     }
 
 
+
+    public (int, int) mapPosToMapPos(int x, int y)
+    {
+        
+        //(int, int) startingCord = ()
+        
+        print(textureWidth);
+        print(textureHeight);
+        
+        
+        // ALL WRONG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!, can't be multipled obviously
+        
+        int mapX = 0;
+        int mapY = 0;
+        
+        if (x >= mapWidth / 2)
+        {
+            mapX = (int) textureWidth - 
+        }
+
+        if (x < mapWidth / 2)
+        {
+            mapX = (int)(-textureWidth + (x * mapWidthToTextureWidthRatio));
+        }
+
+        if (y >= mapHeight / 2)
+        {
+            mapY = (int) -(y * mapHeightToTextureHeightRatio);
+        }
+
+        if (y < mapHeight / 2)
+        {
+            mapY = (int)(textureHeight + (y * mapHeightToTextureHeightRatio));
+        }
+
+        
+        
+        
+        // NEed to do the same kind of if strucuture but check if we are halfway through the width/height of the array instead
+        
+        
+        return (mapX, mapY);
+        
+    }
+
+
     /**
      * Highlights a selected territory and region given the input PixelMap positions
      */
@@ -237,6 +284,15 @@ public class MapRendering : MonoBehaviour
                 targetTerritory.armies);
 
             renderEntireMap();
+        }
+    }
+
+
+    public void populateTerritoryArmiesOnMap(List<Territories> territories)
+    {
+        foreach (Territories t in territories)
+        {
+            FindObjectOfType<ArmiesInTerritory>().displayArmyInfoInTerritory(t);   
         }
     }
 

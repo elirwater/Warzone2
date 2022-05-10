@@ -123,6 +123,7 @@ public class Controller : MonoBehaviour
         
         updateMapForRendering();
         mapRendering.renderEntireMap();
+        mapRendering.populateTerritoryArmiesOnMap(new List<Territories>(gameStateObj.currentMapState));
     }
 
 
