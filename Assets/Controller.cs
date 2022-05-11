@@ -48,6 +48,7 @@ public class Controller : MonoBehaviour
     [System.Serializable]
     public class AgentData
     {
+        public bool player;
         public bool naiveAgent;
         public bool dfsAgent;
         public bool bfsAgent;
@@ -120,10 +121,8 @@ public class Controller : MonoBehaviour
             agent.setAbstractAgentGameState(new GameState.AbstractAgentGameState(gameStateObj));
         }
         
-        
         updateMapForRendering();
         mapRendering.renderEntireMap();
-        mapRendering.populateTerritoryArmiesOnMap(new List<Territories>(gameStateObj.currentMapState));
     }
 
 
@@ -145,13 +144,41 @@ public class Controller : MonoBehaviour
         // A given round is progressed by hitting the space key (for now)
         if (Input.GetKeyDown("space") && !isGameOver)
         {
-            nextRound();
+            if (agentData.player)
+            {
+                nextPlayerRound();
+            }
+            else
+            {
+                nextAgentRound();   
+            }
         }
 
         if (isGameOver)
         {
             initializeGame();
         }
+    }
+    
+    
+    IEnumerator AsynchronousPlayerWait() {
+        yield return new WaitUntil(() => FindObjectOfType<PlayerController>().playerRoundOver());
+        nextAgentRound();
+    }
+
+
+
+
+
+    private void nextPlayerRound()
+    {
+        print("Player is playing");
+        gameStateObj.nextRound();
+        FindObjectOfType<PlayerController>().playerNextRound();
+        
+        // add moves to gamestate
+        
+        StartCoroutine(AsynchronousPlayerWait());
     }
 
     
@@ -166,10 +193,12 @@ public class Controller : MonoBehaviour
      *    4. Update gameState w/ these moves
      * 3. Update map for rendering
      */
-    private void nextRound()
+    private void nextAgentRound()
     {
-        gameStateObj.nextRound();
+        print("Agent turn now");
         
+        gameStateObj.nextRound();
+
         foreach (Agents agent in agents)
         {
             agent.nextRound();
@@ -226,7 +255,8 @@ public class Controller : MonoBehaviour
         {
             print("GAME OVER");
             isGameOver = true;
-        }
+        } 
+
     }
     
     
@@ -242,7 +272,7 @@ public class Controller : MonoBehaviour
     {
         for (int i = 0; i < numRounds; i++)
         {
-            nextRound();
+            nextAgentRound();
             if (isGameOver)
             {
                 print("Game lasted " + i + " rounds");
@@ -286,7 +316,7 @@ public class Controller : MonoBehaviour
             {
                 for (int i = 0; i < numRounds; i++)
                 {
-                    nextRound();
+                    nextAgentRound();
 
                     if (isGameOver)
                     {
@@ -337,7 +367,7 @@ public class Controller : MonoBehaviour
     private void instantiateAgentsFromEditor()
     {
         System.Random r = new System.Random();
-
+        
         if (agentData.dfsAgent)
         {
             agents.Add(new NonAdversarialDFS());

@@ -10,9 +10,9 @@ public class LeftSideBar : MonoBehaviour
     public double percentageOfScreenWidth;
     private GameObject backgroundPanel;
     private GameObject panelDisplayInfo;
-    
     void Start()
     {
+        //TODO THIS SHOULD BE ATTACHED VIA SCRIPT, not found by name
         
         backgroundPanel = GameObject.Find("BackgroundPanel");
         panelDisplayInfo = GameObject.Find("PanelDisplayInfo");
@@ -34,11 +34,11 @@ public class LeftSideBar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
-    
-    
-    
+
+
+
     public void displayTerritoryInfo(string name, string occupier, string region, int RegionalBonusValue, int numNeighbors, int numArmies)
     {
         Text inputText = panelDisplayInfo.GetComponent<Text>();
