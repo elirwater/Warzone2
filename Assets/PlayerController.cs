@@ -4,21 +4,44 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour{
+public class PlayerController : MonoBehaviour
+{
 
     private bool onDeployButtonPressed;
     private bool onAttackButtonPressed;
     public bool onCommitButtonPressed;
+
+    private selectedButton targetField;
+
+    //public GameObject targetedButton;
+    
+    
+    private enum selectedButton
+    {
+        deployTo,
+        attackFrom,
+        attackTo
+    }
     
 
     private void Start()
     {
-        onDeployButtonPressed = false;
-        onAttackButtonPressed = false;
         onCommitButtonPressed = false;
     }
-    
-    
+
+
+    private void Update()
+    {
+        // TODO: should only be called when button is selected lol
+        if (Input.GetMouseButtonDown(0))
+        {
+            string territoryName = FindObjectOfType<MapRendering>()
+                .getTerritoryFromMousePos(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+
+            logicController(territoryName);
+        }
+    }
+
 
     public void playerNextRound()
     {
@@ -41,8 +64,6 @@ public class PlayerController : MonoBehaviour{
     {
         if (onCommitButtonPressed)
         {
-            onAttackButtonPressed = false;
-            onDeployButtonPressed = false;
             onCommitButtonPressed = false;
             return true;
         }
@@ -50,41 +71,67 @@ public class PlayerController : MonoBehaviour{
     }
     
 
-    private void logicController()
+    private void logicController(string territoryName)
     {
-        if (onDeployButtonPressed)
+        //TODO:  Pass this back to the player agent as well
+        
+        switch(targetField) 
         {
-            FindObjectOfType<PlayerAgent>().deployMode();
+            case selectedButton.deployTo:
+                FindObjectOfType<ButtonManager>().modifyDeployToButton(territoryName);
+                break;
+            case selectedButton.attackFrom:
+                FindObjectOfType<ButtonManager>().modifyAttackFromButton(territoryName);
+                break;
+            case selectedButton.attackTo:
+                FindObjectOfType<ButtonManager>().modifyAttackToButton(territoryName);
+                break;
+            
+            default:
+                break;
         }
 
-        if (onAttackButtonPressed)
-        {
-            FindObjectOfType<PlayerAgent>().deployMode();
-        }
     }
     
 
     public void onDeployButtonPress()
     {
-        onDeployButtonPressed = true;
-        onAttackButtonPressed = false;
-        logicController();
+        FindObjectOfType<ButtonManager>().destroyAttackUI();
+        FindObjectOfType<ButtonManager>().setupDeployUI();
         onDeployButtonPressed = false;
     }
+    
+    
 
     public void onAttackButtonPress()
     {
-        onAttackButtonPressed = true;
-        onDeployButtonPressed = false;
-        logicController();
+        FindObjectOfType<ButtonManager>().destroyDeployUI();
+        FindObjectOfType<ButtonManager>().setupAttackUI();
         onAttackButtonPressed = false;
     }
 
     public void onCommitButtonPress()
     {
         onCommitButtonPressed = true;
-        logicController();
     }
+
+
+
+    public void onDeployToButtonPress()
+    {
+        targetField = selectedButton.deployTo;
+    }
+    
+    public void onAttackFromButtonPress()
+    {
+        targetField = selectedButton.attackFrom;
+    }
+    
+    public void onAttackToButtonPress()
+    {
+        targetField = selectedButton.attackTo;
+    }
+    
     
 
 }

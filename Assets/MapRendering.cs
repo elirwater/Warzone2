@@ -204,6 +204,29 @@ public class MapRendering : MonoBehaviour
 
         return (mapX, mapY);
     }
+
+
+    /**
+     * CALLED BY the player controller when selecting a territory
+     */
+    public string getTerritoryFromMousePos(Vector3 mouseWorldPos)
+    {
+        (int, int) mapPos = mousePosToMapPos(mouseWorldPos);
+        
+        string territoryName = null;
+        
+        // Handles if they are clicking on buttons and not on the map itself
+        try
+        {
+            territoryName = pixelMap[mapPos.Item1, mapPos.Item2].territoryName;
+        }
+        catch (IndexOutOfRangeException)
+        {
+            
+        }
+        
+        return territoryName;
+    }
     
 
 

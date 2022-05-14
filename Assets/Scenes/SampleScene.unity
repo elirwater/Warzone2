@@ -511,6 +511,8 @@ MonoBehaviour:
     type: 3}
   commitButton: {fileID: 2548039490697361167, guid: 20cb1094af6e7a34b80eef1d32c1ce61,
     type: 3}
+  emptyButton: {fileID: 5264952317433392949, guid: d404db7944b25964eb1c75c0bdecf50c,
+    type: 3}
   buttonHeight: 30
 --- !u!1 &1697349616
 GameObject:
@@ -789,7 +791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.41509432, g: 0.41509432, b: 0.41509432, a: 1}
+  m_Color: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 1}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:

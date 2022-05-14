@@ -147,7 +147,7 @@ public class Controller : MonoBehaviour
             if (agentData.player)
             {
                 nextPlayerRound();
-            }
+            } 
             else
             {
                 nextAgentRound();   
@@ -174,6 +174,7 @@ public class Controller : MonoBehaviour
     {
         print("Player is playing");
         gameStateObj.nextRound();
+        
         FindObjectOfType<PlayerController>().playerNextRound();
         
         // add moves to gamestate

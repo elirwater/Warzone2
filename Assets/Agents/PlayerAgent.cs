@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,17 +18,26 @@ public class PlayerAgent : MonoBehaviour
     }
 
 
-    public void deployMode()
+    public void addDeployMove()
     {
-        // Call Deploy UI, add moves to deploy list, etc.
-        
+
+        throw new NotImplementedException();
+    }
+
+    public void removeDeployMove(int idx)
+    {
+        throw new NotImplementedException();
     }
     
     
-    public void attackMode()
+    public void addAttackMove()
     {
-        // Call Attack UI, add moves to attack list, etc.
-        
+        throw new NotImplementedException();
+    }
+
+    public void removeAttackMove(int idx)
+    {
+        throw new NotImplementedException();
     }
 
 }
