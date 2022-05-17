@@ -4,7 +4,7 @@ using UnityEngine;
 /**
  * Abstract class for representing an agent
  */
-public abstract class Agents
+public abstract class Agents : MonoBehaviour
 {
     public string agentName;
     private GameState.AbstractAgentGameState abstractAgentGameState;

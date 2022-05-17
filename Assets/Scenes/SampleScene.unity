@@ -492,7 +492,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e94796541e0fa54f9d6670d4523ce2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  percentageOfScreenWidth: 8.5
+  percentageOfScreenWidth: 10
 --- !u!114 &1627808435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -502,7 +502,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1627808429}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec6bf77c12fcb8a4ea82c452e6338bc5, type: 3}
+  m_Script: {fileID: 11500000, guid: ff058460b4db89e41a1613bd839d111c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   deployButton: {fileID: 1736591434234986310, guid: 6e998c1520640b742a31240da9a37042,
@@ -512,6 +512,10 @@ MonoBehaviour:
   commitButton: {fileID: 2548039490697361167, guid: 20cb1094af6e7a34b80eef1d32c1ce61,
     type: 3}
   emptyButton: {fileID: 5264952317433392949, guid: d404db7944b25964eb1c75c0bdecf50c,
+    type: 3}
+  troopSlider: {fileID: 8730544379214335740, guid: c6ca66a1f63784642883133ff0a70e28,
+    type: 3}
+  sliderText: {fileID: 5294740210890625083, guid: 6761a6d3bd7c99f4fa0a12c256552bbd,
     type: 3}
   buttonHeight: 30
 --- !u!1 &1697349616
@@ -733,10 +737,10 @@ MonoBehaviour:
     dfsAgent: 0
     bfsAgent: 0
     testingAgent: 0
-    alphaBetaAgent: 1
+    alphaBetaAgent: 0
     miniMaxAgent: 0
     expectiMaxAgent: 0
-    MCTSAgent: 1
+    MCTSAgent: 0
   analytics:
     analyticsOn: 0
     numSimulatedGames: 10

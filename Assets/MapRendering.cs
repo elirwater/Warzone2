@@ -222,11 +222,24 @@ public class MapRendering : MonoBehaviour
         }
         catch (IndexOutOfRangeException)
         {
-            
+            // Lazy way of telling the player controller the click was out of bounds (i.e. a button was clicked)
+            return "outOfBounds";
         }
         
         return territoryName;
     }
+
+    /**
+     * CALLED BY the player controller when selecting a territory to deploy x number of troops troops to,
+     * with the max slider value equal the number of armies in the selected territory
+     */
+    public int getArmiesInTerritory(string territoryName)
+    {
+        Territories t = FindObjectOfType<MapGeneration>().findTerritoryByName(territoryName);
+        return t.armies;
+    }
+    
+    
     
 
 

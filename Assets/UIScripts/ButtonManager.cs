@@ -13,6 +13,8 @@ public class ButtonManager : MonoBehaviour
     public GameObject attackButton;
     public GameObject commitButton;
     public GameObject emptyButton;
+    public GameObject troopSlider;
+    public GameObject sliderText;
 
 
     private GameObject deployUIPanel;
@@ -21,6 +23,9 @@ public class ButtonManager : MonoBehaviour
     private GameObject attackUIPanel;
     private GameObject attackUIFromButton;
     private GameObject attackUIToButton;
+
+    private GameObject troopSliderText;
+    private GameObject troopArmySlider;
     
     
     public int buttonHeight;
@@ -55,13 +60,32 @@ public class ButtonManager : MonoBehaviour
         attackUIToButton = null;
     }
 
-    
+
+    private void Update()
+    {
+        if (troopSliderText != null && troopArmySlider != null)
+        {
+            int armies = (int) troopArmySlider.GetComponent<Slider>().value;
+            troopSliderText.GetComponent<Text>().text = armies.ToString();
+        }
+    }
+
+
     private void instantiatePrimaryButtons(GameObject button, int buttonOrder)
     {
-        GameObject initDeployButton = Instantiate(button, new Vector3((int) (sideBarWidth / 2), (int) (buttonHeight / 2) + (buttonHeight * buttonOrder), 1), Quaternion.identity, parentObject.transform);
+        GameObject initDeployButton = instantiateGameObject(button,
+            (int) ((buttonHeight / 2) + (buttonHeight * buttonOrder)), sideBarWidth / 2, parentObject);
         initDeployButton.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sideBarWidth);
-        
     }
+
+
+
+    private GameObject instantiateGameObject(GameObject obj, int yPos, int width, GameObject parent)
+    {
+        return Instantiate(obj, new Vector3(width, yPos, 1), Quaternion.identity, parent.transform);
+    }
+    
+    
 
     public void setupDeployUI()
     {
@@ -72,6 +96,7 @@ public class ButtonManager : MonoBehaviour
         
         
         GameObject deployToButton = Instantiate(emptyButton, new Vector3((int) (sideBarWidth / 2), panelTopPos, 1), Quaternion.identity, deployPanel.transform);
+  
         deployToButton.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sideBarWidth);
         deployToButton.GetComponentInChildren<TMP_Text>().text = "Deploy To: ";
         deployToButton.GetComponentInChildren<TMP_Text>().fontSize = 12;
@@ -79,12 +104,77 @@ public class ButtonManager : MonoBehaviour
         deployToButton.GetComponent<Button>().onClick.AddListener(onDeployToButtonPress);
         
         
+        // TODO: incredibly manual for now!!!!!!!!!!!!!!!!
+        GameObject prevButton = Instantiate(emptyButton, new Vector3((int) (sideBarWidth / 4), panelTopPos - 100, 1), Quaternion.identity, deployPanel.transform);
+        prevButton.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sideBarWidth / 2);
+        prevButton.GetComponentInChildren<TMP_Text>().text = "prev";
+        prevButton.GetComponentInChildren<TMP_Text>().fontSize = 12;
+        // Add the button listener through the script
+        prevButton.GetComponent<Button>().onClick.AddListener(onPrevButtonPress);
+        
+        
+        GameObject nextButton = Instantiate(emptyButton, new Vector3((int) (sideBarWidth / 4) + (sideBarWidth / 2) , panelTopPos - 100, 1), Quaternion.identity, deployPanel.transform);
+        nextButton.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sideBarWidth / 2);
+        nextButton.GetComponentInChildren<TMP_Text>().text = "next";
+        nextButton.GetComponentInChildren<TMP_Text>().fontSize = 12;
+        // Add the button listener through the script
+        nextButton.GetComponent<Button>().onClick.AddListener(onNextButtonPress);
+        
+        
+        //GameObject deployNextButton = Instantiate(emptyButton, new Vector3((int) (sideBarWidth / 2), panelTopPos, 1), Quaternion.identity, deployPanel.transform);
+        
+        
+        //TODO: add a slider that auto adjusts based on how many troops you can deploy
+        //TODO: implement a method spawnButton(int backgroundPanelPosition)
+        
         
         // Save these GameObjects as fields so we can modify / destroy them as needed in the PlayerController
         deployUIPanel = deployPanel;
         deployUIToButton = deployToButton;
 
     }
+
+
+    
+    public void addSliderUI(int numArmies)
+    {
+
+        if (troopSliderText != null && troopArmySlider != null)
+        {
+            troopArmySlider.GetComponent<Slider>().maxValue = numArmies;
+        }
+        else
+        {
+            if (deployUIPanel != null)
+            {
+                //TODO: destroy all this repeated code -> ALL NEEDS TOBE ABSTRACTED
+                troopArmySlider = Instantiate(troopSlider, new Vector3((int) (sideBarWidth / 2), (int) (Screen.height / 2 - buttonHeight) + (buttonHeight), 1), Quaternion.identity, deployUIPanel.transform);   
+                troopArmySlider.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sideBarWidth);
+                troopArmySlider.GetComponent<Slider>().maxValue = numArmies;
+            
+                troopSliderText = Instantiate(sliderText, new Vector3((int) (sideBarWidth / 2), (int) (Screen.height / 2 - buttonHeight - buttonHeight) + (buttonHeight), 1), Quaternion.identity, deployUIPanel.transform);  
+                troopSliderText.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sideBarWidth);
+            }
+            else
+            {
+                troopArmySlider = Instantiate(troopSlider, new Vector3((int) (sideBarWidth / 2), (int) (Screen.height / 2 - buttonHeight) + (buttonHeight), 1), Quaternion.identity, attackUIPanel.transform);   
+                troopArmySlider.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sideBarWidth);
+                troopArmySlider.GetComponent<Slider>().maxValue = numArmies;
+            
+                troopSliderText = Instantiate(sliderText, new Vector3((int) (sideBarWidth / 2), (int) (Screen.height / 2 - buttonHeight - buttonHeight) + (buttonHeight), 1), Quaternion.identity, attackUIPanel.transform);  
+                troopSliderText.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sideBarWidth);
+                
+            }
+        }
+        
+        //TODO: destroy all this repeated code -> ALL NEEDS TOBE ABSTRACTED
+        
+        // TODO: need the attack button case
+    }
+    
+    
+    
+    
 
     public void modifyDeployToButton(string inputTerritoryName)
     {
@@ -104,6 +194,7 @@ public class ButtonManager : MonoBehaviour
     
     public void setupAttackUI()
     {
+        print("setting up attack UI");
         GameObject attackPanel = setupNewUIPanel();
         RectTransform attackPanelRectT = attackPanel.GetComponent<RectTransform>();
         int panelTopPos = (int) (attackPanelRectT.transform.position.y + (attackPanelRectT.rect.height / 2));
@@ -121,6 +212,23 @@ public class ButtonManager : MonoBehaviour
         attackToButton.GetComponentInChildren<TMP_Text>().text = "Attack To: ";
         attackToButton.GetComponentInChildren<TMP_Text>().fontSize = 12;
         attackToButton.GetComponent<Button>().onClick.AddListener(onAttackToButtonPress);
+        
+        // TODO: incredibly manual for now!!!!!!!!!!!!!!!!
+        GameObject prevButton = Instantiate(emptyButton, new Vector3((int) (sideBarWidth / 4), panelTopPos - 100, 1), Quaternion.identity, attackPanel.transform);
+        prevButton.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sideBarWidth / 2);
+        prevButton.GetComponentInChildren<TMP_Text>().text = "prev";
+        prevButton.GetComponentInChildren<TMP_Text>().fontSize = 12;
+        // Add the button listener through the script
+        prevButton.GetComponent<Button>().onClick.AddListener(onPrevButtonPress);
+        
+        
+        GameObject nextButton = Instantiate(emptyButton, new Vector3((int) (sideBarWidth / 4) + (sideBarWidth / 2) , panelTopPos - 100, 1), Quaternion.identity, attackPanel.transform);
+        nextButton.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, sideBarWidth / 2);
+        nextButton.GetComponentInChildren<TMP_Text>().text = "next";
+        nextButton.GetComponentInChildren<TMP_Text>().fontSize = 12;
+        // Add the button listener through the script
+        nextButton.GetComponent<Button>().onClick.AddListener(onNextButtonPress);
+        
         
         // Save these GameObjects as fields so we can modify / destroy them as needed in the PlayerController
         attackUIPanel = attackPanel;
@@ -166,6 +274,20 @@ public class ButtonManager : MonoBehaviour
 
         return newPanel;
     }
+
+
+    /**
+     * Called by the player controller to figure out how many armies were selected to deploy/attack with
+     */
+    public int getSliderArmies()
+    {
+        if (troopSlider != null)
+        {
+            return (int) troopArmySlider.GetComponent<Slider>().value;
+        }
+
+        throw new System.Exception("No troop amount selected through slider");
+    }
     
 
 
@@ -208,6 +330,17 @@ public class ButtonManager : MonoBehaviour
         b.GetComponent<Image>().color  = Color.red;
         prevB.GetComponent<Image>().color  = Color.gray;
         FindObjectOfType<PlayerController>().onAttackToButtonPress();
+    }
+
+
+    public void onPrevButtonPress()
+    {
+        
+    }
+    
+    public void onNextButtonPress()
+    {
+        FindObjectOfType<PlayerController>().onNext();
     }
 
 }

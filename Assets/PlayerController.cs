@@ -13,50 +13,64 @@ public class PlayerController : MonoBehaviour
 
     private selectedButton targetField;
 
+    private PlayerAgent player;
+    
+    private string selectedTerritory;
+    
+    private string selectedFromTerritory;
+    private string selectedToTerritory;
     //public GameObject targetedButton;
     
     
     private enum selectedButton
     {
+        none,
         deployTo,
         attackFrom,
         attackTo
+    }
+
+
+
+    /**
+     * CALLED BY the controller to setup the player with the playerAgent instance
+     */
+    public void instantiatePlayer(PlayerAgent playerAgent)
+    {
+        player = playerAgent;
     }
     
 
     private void Start()
     {
+        targetField = selectedButton.none;
         onCommitButtonPressed = false;
     }
 
 
     private void Update()
     {
-        // TODO: should only be called when button is selected lol
         if (Input.GetMouseButtonDown(0))
         {
-            string territoryName = FindObjectOfType<MapRendering>()
+            selectedTerritory = FindObjectOfType<MapRendering>()
                 .getTerritoryFromMousePos(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            
 
-            logicController(territoryName);
+            if (selectedTerritory != "outOfBounds")
+            {
+                int maxArmies = FindObjectOfType<MapRendering>().getArmiesInTerritory(selectedTerritory);
+                FindObjectOfType<ButtonManager>().addSliderUI(maxArmies);
+                buttonSelectionController();
+            }
         }
     }
 
 
     public void playerNextRound()
     {
-        FindObjectOfType<PlayerAgent>().playerNextRound();
+        player.playerNextRound();
     }
 
-    public List<DeployMoves> getPlayerDeployMoves()
-    {
-        return FindObjectOfType<PlayerAgent>().playerCreatedDeployMoves;
-    }
-
-    public List<AttackMoves> getPlayerAttackMoves()
-    {
-        return FindObjectOfType<PlayerAgent>().playerCreatedAttackMoves;
-    }
     
 
     // Controller instantiates a Coroutine and waits until this method evaluates true
@@ -64,6 +78,7 @@ public class PlayerController : MonoBehaviour
     {
         if (onCommitButtonPressed)
         {
+            print("done");
             onCommitButtonPressed = false;
             return true;
         }
@@ -71,34 +86,40 @@ public class PlayerController : MonoBehaviour
     }
     
 
-    private void logicController(string territoryName)
+    private void buttonSelectionController()
     {
         //TODO:  Pass this back to the player agent as well
         
         switch(targetField) 
         {
             case selectedButton.deployTo:
-                FindObjectOfType<ButtonManager>().modifyDeployToButton(territoryName);
-                break;
+                FindObjectOfType<ButtonManager>().modifyDeployToButton(selectedTerritory);
+                selectedFromTerritory = selectedTerritory;
+                return;
             case selectedButton.attackFrom:
-                FindObjectOfType<ButtonManager>().modifyAttackFromButton(territoryName);
-                break;
+                FindObjectOfType<ButtonManager>().modifyAttackFromButton(selectedTerritory);
+                selectedFromTerritory = selectedTerritory;
+                return;
             case selectedButton.attackTo:
-                FindObjectOfType<ButtonManager>().modifyAttackToButton(territoryName);
-                break;
+                selectedToTerritory = selectedTerritory;
+                FindObjectOfType<ButtonManager>().modifyAttackToButton(selectedTerritory);
+                return;
             
             default:
+                targetField = selectedButton.none;
                 break;
         }
-
     }
+
+    
     
 
     public void onDeployButtonPress()
     {
         FindObjectOfType<ButtonManager>().destroyAttackUI();
         FindObjectOfType<ButtonManager>().setupDeployUI();
-        onDeployButtonPressed = false;
+        onDeployButtonPressed = true;
+        onAttackButtonPressed = false;
     }
     
     
@@ -107,7 +128,8 @@ public class PlayerController : MonoBehaviour
     {
         FindObjectOfType<ButtonManager>().destroyDeployUI();
         FindObjectOfType<ButtonManager>().setupAttackUI();
-        onAttackButtonPressed = false;
+        onAttackButtonPressed = true;
+        onDeployButtonPressed = false;
     }
 
     public void onCommitButtonPress()
@@ -131,6 +153,24 @@ public class PlayerController : MonoBehaviour
     {
         targetField = selectedButton.attackTo;
     }
+
+    public void onNext()
+    {
+        print("onNext");
+        int armies = FindObjectOfType<ButtonManager>().getSliderArmies();
+
+        if (onDeployButtonPressed)
+        {
+            player.addDeployMove(selectedToTerritory, armies);
+        }
+        else
+        {
+            player.addAttackMove(selectedFromTerritory, selectedToTerritory, armies);
+        }
+
+    }
+    
+    //TODO: implement prev
     
     
 

@@ -40,10 +40,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 9029893024454138699}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec6bf77c12fcb8a4ea82c452e6338bc5, type: 3}
+  m_Script: {fileID: 11500000, guid: ff058460b4db89e41a1613bd839d111c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deployButton: {fileID: 0}
-  attackButton: {fileID: 0}
-  commitButton: {fileID: 0}
-  buttonHeight: 0
+  deployButton: {fileID: 1736591434234986310, guid: 6e998c1520640b742a31240da9a37042,
+    type: 3}
+  attackButton: {fileID: 7613118237974294360, guid: 78c12081e6a994645a532e025ee24a3a,
+    type: 3}
+  commitButton: {fileID: 2548039490697361167, guid: 20cb1094af6e7a34b80eef1d32c1ce61,
+    type: 3}
+  emptyButton: {fileID: 8319773860668625799, guid: a80398ce29cf04740be5441602c402c5,
+    type: 3}
+  troopSlider: {fileID: 8730544379214335740, guid: c6ca66a1f63784642883133ff0a70e28,
+    type: 3}
+  sliderText: {fileID: 5294740210890625083, guid: 6761a6d3bd7c99f4fa0a12c256552bbd,
+    type: 3}
+  buttonHeight: 30

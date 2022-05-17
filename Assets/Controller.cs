@@ -101,6 +101,7 @@ public class Controller : MonoBehaviour
      */
     private void initializeGame()
     {
+
         isGameOver = false;
 
         mapState = FindObjectOfType<MapGeneration>();
@@ -110,6 +111,16 @@ public class Controller : MonoBehaviour
         
 
         agents = new List<Agents>();
+        
+        // Maybe find better implementation...
+        if (agentData.player)
+        {
+            PlayerAgent p = new PlayerAgent();
+            agents.Add(p);
+            FindObjectOfType<PlayerController>().instantiatePlayer(p);
+        }
+        
+        
         instantiateAgentsFromEditor();
         
         // We then generate our GameState class which controls all aspects of the game
@@ -173,6 +184,7 @@ public class Controller : MonoBehaviour
     private void nextPlayerRound()
     {
         print("Player is playing");
+        
         gameStateObj.nextRound();
         
         FindObjectOfType<PlayerController>().playerNextRound();
@@ -202,6 +214,7 @@ public class Controller : MonoBehaviour
 
         foreach (Agents agent in agents)
         {
+            print(agent.agentName);
             agent.nextRound();
             List<DeployMoves> deployMovesTestingAgent = agent.generateDeployMoves();
             List<(string, List<DeployMoves>)> deployMoves = new List<(string, List<DeployMoves>)>();
@@ -368,7 +381,7 @@ public class Controller : MonoBehaviour
     private void instantiateAgentsFromEditor()
     {
         System.Random r = new System.Random();
-        
+
         if (agentData.dfsAgent)
         {
             agents.Add(new NonAdversarialDFS());
