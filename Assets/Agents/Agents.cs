@@ -100,4 +100,12 @@ public abstract class Agents : MonoBehaviour
     {
         return (armies, territories.Count, exploredGameStates);
     }
+
+    /**
+     * Returns the number of armies this player has to deploy -> used by the player controller
+     */
+    public int getArmies()
+    {
+        return armies;
+    }
 }

@@ -392,6 +392,7 @@ GameObject:
   - component: {fileID: 1627808430}
   - component: {fileID: 1627808434}
   - component: {fileID: 1627808435}
+  - component: {fileID: 1627808436}
   m_Layer: 5
   m_Name: PrimaryCanvas
   m_TagString: Untagged
@@ -518,6 +519,18 @@ MonoBehaviour:
   sliderText: {fileID: 5294740210890625083, guid: 6761a6d3bd7c99f4fa0a12c256552bbd,
     type: 3}
   buttonHeight: 30
+--- !u!114 &1627808436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1627808429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f216be9b3b54df458809709b468620a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1697349616
 GameObject:
   m_ObjectHideFlags: 0
@@ -548,6 +561,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8756fd04c0f1564590640ec8e608e46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agentName: playerAgent
 --- !u!114 &1697349618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -732,7 +746,7 @@ MonoBehaviour:
     smoothIterations: 33
     randomFillPercent: 46
   agentData:
-    player: 1
+    player: 0
     naiveAgent: 0
     dfsAgent: 0
     bfsAgent: 0
@@ -740,7 +754,7 @@ MonoBehaviour:
     alphaBetaAgent: 0
     miniMaxAgent: 0
     expectiMaxAgent: 0
-    MCTSAgent: 0
+    MCTSAgent: 1
   analytics:
     analyticsOn: 0
     numSimulatedGames: 10

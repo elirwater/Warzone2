@@ -55,11 +55,10 @@ public class PlayerController : MonoBehaviour
             selectedTerritory = FindObjectOfType<MapRendering>()
                 .getTerritoryFromMousePos(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             
-
             if (selectedTerritory != "outOfBounds")
             {
                 int maxArmies = FindObjectOfType<MapRendering>().getArmiesInTerritory(selectedTerritory);
-                FindObjectOfType<ButtonManager>().addSliderUI(maxArmies);
+                FindObjectOfType<ButtonManager>().updateSliderMaxValue(maxArmies);
                 buttonSelectionController();
             }
         }
@@ -110,10 +109,8 @@ public class PlayerController : MonoBehaviour
                 break;
         }
     }
-
     
     
-
     public void onDeployButtonPress()
     {
         FindObjectOfType<ButtonManager>().destroyAttackUI();
@@ -121,6 +118,10 @@ public class PlayerController : MonoBehaviour
         onDeployButtonPressed = true;
         onAttackButtonPressed = false;
     }
+    
+    
+    
+    //TODO: need to keep track of armies already deployed to, so you can attack with all of those troops (but they haven't actually been deployed yet so just use a dict here
     
     
 
