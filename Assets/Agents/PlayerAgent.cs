@@ -6,8 +6,8 @@ using UnityEngine;
 public class PlayerAgent : Agents
 {
 
-    public List<DeployMoves> playerCreatedDeployMoves = new List<DeployMoves>();
-    public List<AttackMoves> playerCreatedAttackMoves = new List<AttackMoves>();
+    private List<DeployMoves> playerCreatedDeployMoves;
+    private List<AttackMoves> playerCreatedAttackMoves;
     
 
 
@@ -25,9 +25,10 @@ public class PlayerAgent : Agents
 
     public void addDeployMove(string territoryFrom, int armies)
     {
-        print("deployMove added");
+        //TODO: need to check that it doesn't already exist!
         playerCreatedDeployMoves.Add(new DeployMoves(territoryFrom, armies));
     }
+    
 
     public void removeDeployMove(int idx)
     {
@@ -37,7 +38,8 @@ public class PlayerAgent : Agents
     
     public void addAttackMove(string territoryFrom, string territoryTo, int armies)
     {
-        playerCreatedAttackMoves.Add(new AttackMoves(territoryFrom, territoryTo ,armies));
+        //TODO: need to check that it doesn't already exist!
+        playerCreatedAttackMoves.Add(new AttackMoves(territoryFrom, territoryTo, armies));
     }
 
     public void removeAttackMove(int idx)
@@ -53,5 +55,23 @@ public class PlayerAgent : Agents
     public override List<AttackMoves> generateAttackMoves()
     {
         return playerCreatedAttackMoves;
+    }
+    
+    
+    /**
+     * Fetches the number of additional deployed armies to a territory (as the gameState hasn't been updated with these
+     * deploy moves until commit is pressed, and you want to be able to attack with the armies you have deployed
+     */
+    public int getDeployMoveArmies(string inputTerritory)
+    {
+        foreach (DeployMoves territoryMove in playerCreatedDeployMoves)
+        {
+            if (territoryMove.toTerritory == inputTerritory)
+            {
+                return territoryMove.armies;
+            }
+        }
+
+        return 0;
     }
 }

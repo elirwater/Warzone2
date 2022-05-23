@@ -746,7 +746,7 @@ MonoBehaviour:
     smoothIterations: 33
     randomFillPercent: 46
   agentData:
-    player: 0
+    player: 1
     naiveAgent: 0
     dfsAgent: 0
     bfsAgent: 0
@@ -754,7 +754,7 @@ MonoBehaviour:
     alphaBetaAgent: 0
     miniMaxAgent: 0
     expectiMaxAgent: 0
-    MCTSAgent: 1
+    MCTSAgent: 0
   analytics:
     analyticsOn: 0
     numSimulatedGames: 10

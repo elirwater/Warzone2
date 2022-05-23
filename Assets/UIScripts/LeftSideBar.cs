@@ -40,6 +40,7 @@ public class LeftSideBar : MonoBehaviour
 
 
 
+
     public void displayTerritoryInfo(string name, string occupier, string region, int RegionalBonusValue, int numNeighbors, int numArmies)
     {
         Text inputText = panelDisplayInfo.GetComponent<Text>();

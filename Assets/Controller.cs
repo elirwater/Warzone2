@@ -18,12 +18,9 @@ public class Controller : MonoBehaviour
     private MapGeneration mapState;
     private MapRendering mapRendering;
     private List<Agents> agents;
-    private Agents inGameAgent;
-    private Agents inGameAgent2;
-    private Agents inGameAgent3;
-    private Agents inGameAgent4;
-    private Agents inGameAgent5;
     private bool isGameOver;
+
+    private PlayerAgent player;
     
 
     /**
@@ -116,6 +113,7 @@ public class Controller : MonoBehaviour
         if (agentData.player)
         {
             PlayerAgent p = new PlayerAgent();
+            player = p;
             agents.Add(p);
             FindObjectOfType<PlayerController>().instantiatePlayer(p);
         }
@@ -186,7 +184,8 @@ public class Controller : MonoBehaviour
         print("Player is playing");
         
         gameStateObj.nextRound();
-        
+        player.nextRound();
+
         FindObjectOfType<PlayerController>().playerNextRound();
         
         // add moves to gamestate
@@ -214,7 +213,6 @@ public class Controller : MonoBehaviour
 
         foreach (Agents agent in agents)
         {
-            print(agent.agentName);
             agent.nextRound();
             List<DeployMoves> deployMovesTestingAgent = agent.generateDeployMoves();
             List<(string, List<DeployMoves>)> deployMoves = new List<(string, List<DeployMoves>)>();

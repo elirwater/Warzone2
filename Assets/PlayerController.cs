@@ -55,10 +55,34 @@ public class PlayerController : MonoBehaviour
             selectedTerritory = FindObjectOfType<MapRendering>()
                 .getTerritoryFromMousePos(Camera.main.ScreenToWorldPoint(Input.mousePosition));
             
+            
             if (selectedTerritory != "outOfBounds")
             {
-                int maxArmies = FindObjectOfType<MapRendering>().getArmiesInTerritory(selectedTerritory);
-                FindObjectOfType<ButtonManager>().updateSliderMaxValue(maxArmies);
+                int maxArmies = 0;
+                
+                if (targetField == selectedButton.deployTo)
+                {
+                    maxArmies = player.getArmies();
+                    print(maxArmies);
+                    FindObjectOfType<ButtonManager>().updateSliderMaxValue(maxArmies); 
+                    buttonSelectionController();
+                    return;
+                } 
+                
+                
+                maxArmies = FindObjectOfType<MapRendering>().getArmiesInTerritory(selectedTerritory);
+                
+                // We check if we are in attack mode, and if we are, we grab the number of armies we have already deployed as well
+                if (targetField == selectedButton.attackFrom)
+                {
+                    maxArmies += player.getDeployMoveArmies(selectedTerritory);
+                }
+                
+                // We don't need to update the slider if we are attacking to a given territory
+                if (targetField != selectedButton.attackTo)
+                {
+                    FindObjectOfType<ButtonManager>().updateSliderMaxValue(maxArmies);   
+                }
                 buttonSelectionController();
             }
         }
@@ -77,7 +101,6 @@ public class PlayerController : MonoBehaviour
     {
         if (onCommitButtonPressed)
         {
-            print("done");
             onCommitButtonPressed = false;
             return true;
         }
@@ -93,7 +116,7 @@ public class PlayerController : MonoBehaviour
         {
             case selectedButton.deployTo:
                 FindObjectOfType<ButtonManager>().modifyDeployToButton(selectedTerritory);
-                selectedFromTerritory = selectedTerritory;
+                selectedToTerritory = selectedTerritory;
                 return;
             case selectedButton.attackFrom:
                 FindObjectOfType<ButtonManager>().modifyAttackFromButton(selectedTerritory);
@@ -157,7 +180,6 @@ public class PlayerController : MonoBehaviour
 
     public void onNext()
     {
-        print("onNext");
         int armies = FindObjectOfType<ButtonManager>().getSliderArmies();
 
         if (onDeployButtonPressed)

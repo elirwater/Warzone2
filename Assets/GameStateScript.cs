@@ -310,20 +310,15 @@ public class GameState
         public int getArmies(string agentName)
         {
             int finalArmiesValue = 5;
-            foreach (Agents agent in gameState.agentsList)
-            {
 
-                if (agent.agentName == agentName)
+            foreach (Regions region in gameState.regions)
+            {
+                if (region.occupier == agentName)
                 {
-                    foreach (Regions region in gameState.regions) 
-                    {
-                        if (agent.agentName == region.occupier)
-                        {
-                            finalArmiesValue += region.regionalBonusValue;
-                        }
-                    }
+                    finalArmiesValue += region.regionalBonusValue;
                 }
             }
+            
             return finalArmiesValue;
         }
         
