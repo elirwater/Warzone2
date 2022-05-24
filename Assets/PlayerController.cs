@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             selectedTerritory = FindObjectOfType<MapRendering>()
-                .getTerritoryFromMousePos(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+                .getTerritoryFromMousePos(Camera.main.ScreenToWorldPoint(Input.mousePosition), player.agentName);
             
             
             if (selectedTerritory != "outOfBounds")
@@ -190,7 +190,11 @@ public class PlayerController : MonoBehaviour
         {
             player.addAttackMove(selectedFromTerritory, selectedToTerritory, armies);
         }
-
+        
+        //Clear all the button text fields when the next button is pressed
+        selectedTerritory = "";
+        buttonSelectionController();
+        
     }
     
     //TODO: implement prev

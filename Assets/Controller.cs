@@ -411,12 +411,12 @@ public class Controller : MonoBehaviour
             for (int i = 0; i < agentData.alphaBetaAgent; i++)
             {
                 Agents a = new AlphaBetaAgent();
-                a.agentName = a.agentName;
+                a.agentName = a.agentName + "_" + r.Next(1000);
                 agents.Add(a);   
             }
         }
         
-        if (agentData.miniMaxAgent > 0)
+        if (agentData.miniMaxAgent > 0)     
         {
             for (int i = 0; i < agentData.miniMaxAgent; i++)
             {
@@ -440,7 +440,7 @@ public class Controller : MonoBehaviour
             for (int i = 0; i < agentData.MCTSAgent; i++)
             {
                 Agents a = new MCTSAgent();
-                a.agentName = a.agentName;
+                a.agentName = a.agentName + "_" + r.Next(1000);
                 agents.Add(a);   
             }
         }

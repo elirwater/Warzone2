@@ -12,9 +12,7 @@ public class LeftSideBar : MonoBehaviour
     private GameObject panelDisplayInfo;
     void Start()
     {
-        //TODO THIS SHOULD BE ATTACHED VIA SCRIPT, not found by name
-        
-        print("here");
+  
         backgroundPanel = GameObject.Find("BackgroundPanel");
         panelDisplayInfo = GameObject.Find("PanelDisplayInfo");
         RectTransform backgroundPanelRectT = backgroundPanel.GetComponent<RectTransform>();

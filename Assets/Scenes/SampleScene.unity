@@ -493,7 +493,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e94796541e0fa54f9d6670d4523ce2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  percentageOfScreenWidth: 10
+  percentageOfScreenWidth: 12
 --- !u!114 &1627808435
 MonoBehaviour:
   m_ObjectHideFlags: 0
