@@ -37,28 +37,37 @@ public class ButtonManager : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        // https://docs.unity3d.com/Manual/class-MonoManager.html
-        // Changed the script execution order so the start method for button manager will have completed by the time this is called
         
-        RectTransform sideBarTransform = GameObject.Find("BackgroundPanel").GetComponent<RectTransform>();
-        sideBarWidth = (int) sideBarTransform.rect.width;
-        parentObject = GameObject.Find("PrimaryCanvas");
-
-        List<GameObject> buttons = new List<GameObject>() {commitButton, attackButton, deployButton};
-
-        int i = 0;
-        foreach (GameObject button in buttons)
+        // Disables this script unless there exits a player in the game
+        if (!FindObjectOfType<Controller>().agentData.player)
         {
-            FindObjectOfType<UISpawner>()
-                .instantiateGameObject(button, (buttonHeight / 2) + (buttonHeight * i), sideBarWidth, parentObject);
-            i += 1;
+            this.GetComponent<ButtonManager>().enabled = false;
         }
+        else
+        {
+            // https://docs.unity3d.com/Manual/class-MonoManager.html
+            // Changed the script execution order so the start method for button manager will have completed by the time this is called
+        
+            RectTransform sideBarTransform = GameObject.Find("BackgroundPanel").GetComponent<RectTransform>();
+            sideBarWidth = (int) sideBarTransform.rect.width;
+            parentObject = GameObject.Find("PrimaryCanvas");
 
-        deployUIPanel = null;
-        deployUIToButton = null;
-        attackUIPanel = null;
-        attackUIFromButton = null;
-        attackUIToButton = null;
+            List<GameObject> buttons = new List<GameObject>() {commitButton, attackButton, deployButton};
+
+            int i = 0;
+            foreach (GameObject button in buttons)
+            {
+                FindObjectOfType<UISpawner>()
+                    .instantiateGameObject(button, (buttonHeight / 2) + (buttonHeight * i), sideBarWidth, parentObject);
+                i += 1;
+            }
+
+            deployUIPanel = null;
+            deployUIToButton = null;
+            attackUIPanel = null;
+            attackUIFromButton = null;
+            attackUIToButton = null;   
+        }
     }
 
 
@@ -276,7 +285,7 @@ public class ButtonManager : MonoBehaviour
         FindObjectOfType<PlayerController>().onAttackToButtonPress();
     }
 
-
+    
     public void onPrevButtonPress()
     {
         
@@ -285,6 +294,17 @@ public class ButtonManager : MonoBehaviour
     public void onNextButtonPress()
     {
         FindObjectOfType<PlayerController>().onNext();
+
+        //Also wipe the colors of each button
+        if (deployUIPanel != null)
+        {
+            deployUIToButton.GetComponent<Button>().GetComponent<Image>().color = Color.gray;   
+        }
+        else
+        {
+            attackUIToButton.GetComponent<Button>().GetComponent<Image>().color = Color.gray;
+            attackUIFromButton.GetComponent<Button>().GetComponent<Image>().color = Color.gray;   
+        }
     }
 
 }

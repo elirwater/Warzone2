@@ -207,9 +207,9 @@ public class MapRendering : MonoBehaviour
 
 
     /**
-     * CALLED BY the player controller when selecting a territory, also validates that the player owns this territory
+     * CALLED BY the player controller when selecting a territory
      */
-    public string getTerritoryFromMousePos(Vector3 mouseWorldPos, string playerName)
+    public string getTerritoryFromMousePos(Vector3 mouseWorldPos)
     {
         (int, int) mapPos = mousePosToMapPos(mouseWorldPos);
         
@@ -219,15 +219,8 @@ public class MapRendering : MonoBehaviour
         try
         {
             territoryName = pixelMap[mapPos.Item1, mapPos.Item2].territoryName;
-            string occupier = mapGenerationClass.findTerritoryByName(territoryName).occupier;
+            return territoryName;
 
-            if (occupier == playerName)
-            {
-                return territoryName;
-            }
-       
-            return "outOfBounds";
-            
         }
         catch (IndexOutOfRangeException)
         {

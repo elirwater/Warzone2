@@ -8,9 +8,13 @@ public class PlayerAgent : Agents
 
     private List<DeployMoves> playerCreatedDeployMoves;
     private List<AttackMoves> playerCreatedAttackMoves;
+
+
+    // Created to keep track of how many armies can be used to attack with from a given territory (if you 
+    // are attacking multiple territories from one initial territory)
+    private  IDictionary<string, int> remainingArmiesPerTerritory;
     
-
-
+    
     public PlayerAgent()
     {
         agentName = "playerAgent";
@@ -20,6 +24,13 @@ public class PlayerAgent : Agents
     {
         playerCreatedDeployMoves = new List<DeployMoves>();
         playerCreatedAttackMoves = new List<AttackMoves>();
+        remainingArmiesPerTerritory = new Dictionary<string, int>();
+    }
+
+
+    public bool playerOwnsTerritory(string territoryName)
+    {
+        return agentGameState.getTerritoryByName(territoryName).occupier == agentName;
     }
 
 
@@ -27,6 +38,8 @@ public class PlayerAgent : Agents
     {
         //TODO: need to check that it doesn't already exist!
         playerCreatedDeployMoves.Add(new DeployMoves(territoryFrom, armies));
+
+        remainingArmiesPerTerritory[territoryFrom] = armies;
     }
     
 
@@ -40,6 +53,9 @@ public class PlayerAgent : Agents
     {
         //TODO: need to check that it doesn't already exist!
         playerCreatedAttackMoves.Add(new AttackMoves(territoryFrom, territoryTo, armies));
+        
+        // Subtract the number of armies used to attack from the total armies you can still attack with from this territory
+        remainingArmiesPerTerritory[territoryFrom] -= armies;
     }
 
     public void removeAttackMove(int idx)
@@ -64,14 +80,6 @@ public class PlayerAgent : Agents
      */
     public int getDeployMoveArmies(string inputTerritory)
     {
-        foreach (DeployMoves territoryMove in playerCreatedDeployMoves)
-        {
-            if (territoryMove.toTerritory == inputTerritory)
-            {
-                return territoryMove.armies;
-            }
-        }
-
-        return 0;
+        return remainingArmiesPerTerritory[inputTerritory];
     }
 }

@@ -12,7 +12,6 @@ public class LeftSideBar : MonoBehaviour
     private GameObject panelDisplayInfo;
     void Start()
     {
-  
         backgroundPanel = GameObject.Find("BackgroundPanel");
         panelDisplayInfo = GameObject.Find("PanelDisplayInfo");
         RectTransform backgroundPanelRectT = backgroundPanel.GetComponent<RectTransform>();

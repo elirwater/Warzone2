@@ -19,6 +19,10 @@ public class PlayerController : MonoBehaviour
     
     private string selectedFromTerritory;
     private string selectedToTerritory;
+    
+    
+    private GameState gameStateObj;
+    
     //public GameObject targetedButton;
     
     
@@ -29,6 +33,7 @@ public class PlayerController : MonoBehaviour
         attackFrom,
         attackTo
     }
+    
 
 
 
@@ -39,13 +44,30 @@ public class PlayerController : MonoBehaviour
     {
         player = playerAgent;
     }
+
+    /**
+     * CALLED BY the controller to give the player controller access to the current gameState
+     */
+    public void updateGameStateObj(GameState g)
+    {
+        gameStateObj = g;
+    }
     
 
     private void Start()
     {
+        // Disables this script unless there exits a player in the game (stops the update method and all other methods from
+        // being called/triggered
+        if (!FindObjectOfType<Controller>().agentData.player)
+        {
+            this.GetComponent<PlayerController>().enabled = false;
+        }
+        
         targetField = selectedButton.none;
         onCommitButtonPressed = false;
     }
+    
+    
 
 
     private void Update()
@@ -53,17 +75,19 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             selectedTerritory = FindObjectOfType<MapRendering>()
-                .getTerritoryFromMousePos(Camera.main.ScreenToWorldPoint(Input.mousePosition), player.agentName);
-            
+                .getTerritoryFromMousePos(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+
             
             if (selectedTerritory != "outOfBounds")
             {
+
+                bool playerOwnsTerritory = player.playerOwnsTerritory(selectedTerritory);
+                
                 int maxArmies = 0;
                 
-                if (targetField == selectedButton.deployTo)
+                if (targetField == selectedButton.deployTo && playerOwnsTerritory)
                 {
                     maxArmies = player.getArmies();
-                    print(maxArmies);
                     FindObjectOfType<ButtonManager>().updateSliderMaxValue(maxArmies); 
                     buttonSelectionController();
                     return;
@@ -73,17 +97,22 @@ public class PlayerController : MonoBehaviour
                 maxArmies = FindObjectOfType<MapRendering>().getArmiesInTerritory(selectedTerritory);
                 
                 // We check if we are in attack mode, and if we are, we grab the number of armies we have already deployed as well
-                if (targetField == selectedButton.attackFrom)
+                if (targetField == selectedButton.attackFrom && playerOwnsTerritory)
                 {
                     maxArmies += player.getDeployMoveArmies(selectedTerritory);
+                    buttonSelectionController();
                 }
                 
                 // We don't need to update the slider if we are attacking to a given territory
                 if (targetField != selectedButton.attackTo)
                 {
-                    FindObjectOfType<ButtonManager>().updateSliderMaxValue(maxArmies);   
+                    FindObjectOfType<ButtonManager>().updateSliderMaxValue(maxArmies);
                 }
-                buttonSelectionController();
+                
+                if (targetField == selectedButton.attackTo)
+                {
+                    buttonSelectionController();
+                }
             }
         }
     }
@@ -91,6 +120,9 @@ public class PlayerController : MonoBehaviour
 
     public void playerNextRound()
     {
+        onCommitButtonPressed = false;
+        FindObjectOfType<ButtonManager>().destroyDeployUI();
+        FindObjectOfType<ButtonManager>().destroyAttackUI();
         player.playerNextRound();
     }
 
@@ -99,12 +131,7 @@ public class PlayerController : MonoBehaviour
     // Controller instantiates a Coroutine and waits until this method evaluates true
     public bool playerRoundOver()
     {
-        if (onCommitButtonPressed)
-        {
-            onCommitButtonPressed = false;
-            return true;
-        }
-        return false;
+        return onCommitButtonPressed;
     }
     
 
@@ -191,10 +218,24 @@ public class PlayerController : MonoBehaviour
             player.addAttackMove(selectedFromTerritory, selectedToTerritory, armies);
         }
         
+        //TODO: re-do this implementation, its fairly messy
+        
         //Clear all the button text fields when the next button is pressed
         selectedTerritory = "";
         buttonSelectionController();
-        
+
+        // Need to clear both buttons if in attack mode
+        if (onAttackButtonPressed)
+        {
+            targetField = selectedButton.attackFrom;
+            buttonSelectionController();
+            targetField = selectedButton.attackTo;
+            buttonSelectionController();
+        }
+
+        targetField = selectedButton.none;
+        buttonSelectionController();
+
     }
     
     //TODO: implement prev

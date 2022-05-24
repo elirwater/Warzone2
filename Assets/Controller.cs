@@ -15,6 +15,7 @@ using Random = Unity.Mathematics.Random;
 public class Controller : MonoBehaviour
 {
     private GameState gameStateObj;
+    
     private MapGeneration mapState;
     private MapRendering mapRendering;
     private List<Agents> agents;
@@ -123,7 +124,7 @@ public class Controller : MonoBehaviour
         
         // We then generate our GameState class which controls all aspects of the game
         gameStateObj = new GameState(new List<Territories>(territories), new List<Regions>(mapState.getRegions()), agents, false);
-        
+
         // Now we assign our agent the same GameState object so then can make calls and query the gameState
         foreach (Agents agent in agents)
         {
@@ -268,6 +269,9 @@ public class Controller : MonoBehaviour
             print("GAME OVER");
             isGameOver = true;
         } 
+        
+        
+        print("END AGENT ROUND");
 
     }
     

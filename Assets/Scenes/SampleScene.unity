@@ -754,7 +754,7 @@ MonoBehaviour:
     alphaBetaAgent: 0
     miniMaxAgent: 0
     expectiMaxAgent: 0
-    MCTSAgent: 0
+    MCTSAgent: 1
   analytics:
     analyticsOn: 0
     numSimulatedGames: 10
