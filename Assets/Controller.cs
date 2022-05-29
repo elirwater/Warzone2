@@ -14,6 +14,7 @@ using Random = Unity.Mathematics.Random;
  */
 public class Controller : MonoBehaviour
 {
+    private bool onGameUIStart;
     private GameState gameStateObj;
     
     private MapGeneration mapState;
@@ -72,12 +73,29 @@ public class Controller : MonoBehaviour
     public Analytics analytics;
     
     
-    /**
-     * Initializes the game based on the inputted editor menu parameters
-     */
+   
     private void Start()
     {
+        onGameUIStart = false;
+    }
+
+
+    /**
+     * Initializes the game based on the inputted editor menu parameters and waits for the player to begin the game
+     */
+    private void startGame()
+    {
+        FindObjectOfType<MapRendering>().setupMapVisuals();
+        
         initializeGame();
+        
+        //TODO: make a UI managing class, this is getting messy
+
+        FindObjectOfType<LeftSideBar>().instantiateUI();
+        FindObjectOfType<RightSideBar>().instantiateUI();
+        FindObjectOfType<ButtonManager>().setupUI();
+        FindObjectOfType<HomeScreen>().startGame();
+        
         
         if (analytics.analyticsOn)
         {
@@ -145,12 +163,40 @@ public class Controller : MonoBehaviour
     {
         mapRendering.updatePixelMap(mapState.grabMapForRendering());
     }
+
+    /**
+     * Tells the map renderer that the right side panel info needs to be updated, and then the map renderer
+     * dispatches the appropriate gamestate/player info (such as colors) to the right side panel class
+     * Needs to be in the controller class so the display info knows who's turn it is
+     */
+    private void updateInfo(string currentPlayerName)
+    {
+        //TODO: maybe don't pass the agents across like this, perhaps just their info
+        mapRendering.updateRightSidePanel(new List<Agents>(agents), currentPlayerName);
+    }
+    
+    
     
     /**
      * Checks if the game is over every tick and whether the spacebar has been pressed to manually advance the game
      */
     private void Update()
     {
+        // If the game hasn't been started, wait until the input key is pressed and continue to not evaluate the rest of the method
+        if (!onGameUIStart)
+        {
+            if (Input.GetKeyDown("space") && !isGameOver)
+            {
+                onGameUIStart = true;
+                startGame();
+            }
+            else
+            {
+                return;   
+            }
+        }
+        
+        
         // A given round is progressed by hitting the space key (for now)
         if (Input.GetKeyDown("space") && !isGameOver)
         {
@@ -171,7 +217,8 @@ public class Controller : MonoBehaviour
     }
     
     
-    IEnumerator AsynchronousPlayerWait() {
+    IEnumerator AsynchronousPlayerWait()
+    {
         yield return new WaitUntil(() => FindObjectOfType<PlayerController>().playerRoundOver());
         nextAgentRound();
     }
@@ -182,14 +229,12 @@ public class Controller : MonoBehaviour
 
     private void nextPlayerRound()
     {
-        print("Player is playing");
-        
         gameStateObj.nextRound();
         player.nextRound();
 
         FindObjectOfType<PlayerController>().playerNextRound();
         
-        // add moves to gamestate
+        updateInfo(player.agentName);
         
         StartCoroutine(AsynchronousPlayerWait());
     }
@@ -208,13 +253,13 @@ public class Controller : MonoBehaviour
      */
     private void nextAgentRound()
     {
-        print("Agent turn now");
-        
-        gameStateObj.nextRound();
 
         foreach (Agents agent in agents)
         {
             agent.nextRound();
+            
+            updateInfo(agent.agentName);
+            
             List<DeployMoves> deployMovesTestingAgent = agent.generateDeployMoves();
             List<(string, List<DeployMoves>)> deployMoves = new List<(string, List<DeployMoves>)>();
             deployMoves.Add((agent.agentName, deployMovesTestingAgent));

@@ -27,7 +27,11 @@ public class MapRendering : MonoBehaviour
 
     private Texture2D textureMap;
 
-    private void Start()
+ 
+    /**
+     * Instantiates the game texture map and other characteristics used by the rendering class
+     */
+    public void setupMapVisuals()
     {
         Controller.MapGenerationData mapGenerationInputData = FindObjectOfType<Controller>().mapGenerationData;
         mapGenerationClass = FindObjectOfType<MapGeneration>();
@@ -281,6 +285,31 @@ public class MapRendering : MonoBehaviour
 
             renderEntireMap();
         }
+    }
+
+
+    /**
+     * Updates the right hand side panel with info such as the players, their troops, and their player colors
+     */
+    public void updateRightSidePanel(List<Agents> partialPlayerInfo, string currentPlayerName)
+    {
+        List<(string, int, Color)> rightHandInfo = new List<(string, int, Color)>();
+
+        foreach (Agents agent in partialPlayerInfo)
+        {
+            Random.seed = agent.agentName.GetHashCode();
+            float r = Random.Range(0f, 1f);
+            float g = Random.Range(0f, 1f);
+            float b = Random.Range(0f, 1f);
+
+            Color agentColor = new Color(r, g, b);
+            
+            rightHandInfo.Add((agent.agentName, agent.getArmies(), agentColor));
+        }
+        
+        FindObjectOfType<RightSideBar>().updateDisplayInfo(rightHandInfo, currentPlayerName);
+        
+        
     }
     
     

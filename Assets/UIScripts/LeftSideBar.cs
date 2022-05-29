@@ -10,10 +10,15 @@ public class LeftSideBar : MonoBehaviour
     public double percentageOfScreenWidth;
     private GameObject backgroundPanel;
     private GameObject panelDisplayInfo;
-    void Start()
+ 
+
+    /**
+     * Instantiates the left side bar UI elements at game start
+     */
+    public void instantiateUI()
     {
-        backgroundPanel = GameObject.Find("BackgroundPanel");
-        panelDisplayInfo = GameObject.Find("PanelDisplayInfo");
+        backgroundPanel = GameObject.Find("BackgroundPanelLeft");
+        panelDisplayInfo = GameObject.Find("PanelDisplayInfoLeft");
         RectTransform backgroundPanelRectT = backgroundPanel.GetComponent<RectTransform>();
         RectTransform panelDisplayInfoRectT = panelDisplayInfo.GetComponent<RectTransform>();
 

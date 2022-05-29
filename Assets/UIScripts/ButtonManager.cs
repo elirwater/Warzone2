@@ -34,11 +34,15 @@ public class ButtonManager : MonoBehaviour
     private GameObject parentObject;
     
     
-    // Start is called before the first frame update
+    
     private void Start()
     {
-        
-        // Disables this script unless there exits a player in the game
+    }
+
+
+    public void setupUI()
+    {
+        // Disables this script unless there exits a player in the game AND the game has been started
         if (!FindObjectOfType<Controller>().agentData.player)
         {
             this.GetComponent<ButtonManager>().enabled = false;
@@ -48,7 +52,7 @@ public class ButtonManager : MonoBehaviour
             // https://docs.unity3d.com/Manual/class-MonoManager.html
             // Changed the script execution order so the start method for button manager will have completed by the time this is called
         
-            RectTransform sideBarTransform = GameObject.Find("BackgroundPanel").GetComponent<RectTransform>();
+            RectTransform sideBarTransform = GameObject.Find("BackgroundPanelLeft").GetComponent<RectTransform>();
             sideBarWidth = (int) sideBarTransform.rect.width;
             parentObject = GameObject.Find("PrimaryCanvas");
 
