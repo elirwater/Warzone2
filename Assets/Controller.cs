@@ -185,6 +185,7 @@ public class Controller : MonoBehaviour
         // If the game hasn't been started, wait until the input key is pressed and continue to not evaluate the rest of the method
         if (!onGameUIStart)
         {
+            print("hetre");
             if (Input.GetKeyDown("space") && !isGameOver)
             {
                 onGameUIStart = true;
@@ -253,6 +254,8 @@ public class Controller : MonoBehaviour
      */
     private void nextAgentRound()
     {
+        
+        gameStateObj.nextRound();
 
         foreach (Agents agent in agents)
         {
@@ -272,6 +275,7 @@ public class Controller : MonoBehaviour
             List<AttackMoves> agentAttackMoves = agent.generateAttackMoves();
             attackMoves.Add((agent.agentName, agentAttackMoves));
         }
+        
         gameStateObj.updateAttack(attackMoves);
         
         
@@ -306,7 +310,7 @@ public class Controller : MonoBehaviour
             mapRendering.renderMapByModifiedTerritories(territoriesToBeUpdated);
         }
 
-        updateMapForRendering();
+        updateMapForRendering();  
         
         gameStateObj.updateRegionalOccupiers();
         if (gameStateObj.checkGameOverConditions())
@@ -315,9 +319,6 @@ public class Controller : MonoBehaviour
             isGameOver = true;
         } 
         
-        
-        print("END AGENT ROUND");
-
     }
     
     
