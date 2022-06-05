@@ -33,6 +33,24 @@ public class PlayerAgent : Agents
         return agentGameState.getTerritoryByName(territoryName).occupier == agentName;
     }
 
+    public bool neighboringTerritory(string territoryName)
+    {
+        //Inefficient way to do this, should be changed or moved to the GameState class, also everything should
+        //be a string here
+        foreach (Territories territory in territories)
+        {
+            foreach (string neighbor in territory.neighbors)
+            {
+                if (agentGameState.getTerritoryByName(neighbor).territoryName == territoryName)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     public void addDeployMove(string territoryFrom, int armies)
     {
@@ -55,7 +73,10 @@ public class PlayerAgent : Agents
         playerCreatedAttackMoves.Add(new AttackMoves(territoryFrom, territoryTo, armies));
         
         // Subtract the number of armies used to attack from the total armies you can still attack with from this territory
-        remainingArmiesPerTerritory[territoryFrom] -= armies;
+        if (remainingArmiesPerTerritory.ContainsKey(territoryFrom))
+        {
+            remainingArmiesPerTerritory[territoryFrom] -= armies;   
+        }
     }
 
     public void removeAttackMove(int idx)
@@ -80,6 +101,11 @@ public class PlayerAgent : Agents
      */
     public int getDeployMoveArmies(string inputTerritory)
     {
-        return remainingArmiesPerTerritory[inputTerritory];
+        if (remainingArmiesPerTerritory.ContainsKey(inputTerritory))
+        {
+            return remainingArmiesPerTerritory[inputTerritory]; 
+        }
+
+        return 0;
     }
 }

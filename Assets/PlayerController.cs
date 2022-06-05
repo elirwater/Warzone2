@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
             selectedTerritory = FindObjectOfType<MapRendering>()
                 .getTerritoryFromMousePos(Camera.main.ScreenToWorldPoint(Input.mousePosition));
 
-            
+            // This stuff is easy to break, needs to be changed
             if (selectedTerritory != "outOfBounds")
             {
 
@@ -111,7 +111,11 @@ public class PlayerController : MonoBehaviour
                 
                 if (targetField == selectedButton.attackTo)
                 {
-                    buttonSelectionController();
+                    // Make sure its a neighboring territory so you can't attack to anywhere on the map
+                    if (player.neighboringTerritory(selectedTerritory))
+                    {
+                        buttonSelectionController();    
+                    }
                 }
             }
         }

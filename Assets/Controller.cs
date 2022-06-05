@@ -185,7 +185,6 @@ public class Controller : MonoBehaviour
         // If the game hasn't been started, wait until the input key is pressed and continue to not evaluate the rest of the method
         if (!onGameUIStart)
         {
-            print("hetre");
             if (Input.GetKeyDown("space") && !isGameOver)
             {
                 onGameUIStart = true;

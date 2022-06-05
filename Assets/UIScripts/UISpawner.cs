@@ -36,9 +36,10 @@ public class UISpawner : MonoBehaviour
     public GameObject setupNewUIPanel(int panelWidth, int panelHeight, int panelYPos, int panelXPos, GameObject parent)
     {
         // First instantiate a new UI panel, middle of UI
-        GameObject inputPanel = GameObject.Find("BackgroundPanel");
-
+        GameObject inputPanel = GameObject.Find("BackgroundPanelLeft");
+        
         GameObject newPanel = Instantiate(inputPanel, Vector3.one, Quaternion.identity, parent.transform);
+        
         newPanel.GetComponent<Image>().color = Color.black;
         
         RectTransform deployPanelRectT = newPanel.GetComponent<RectTransform>();

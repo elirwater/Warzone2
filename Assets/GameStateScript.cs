@@ -249,7 +249,7 @@ public class GameState
             List<Regions> regionsList = new List<Regions>(gameState.regions);
             return regionsList;
         }
-
+        
         
         /**
          * CALLED BY an agent requesting to see their frontline, i.e. the territories that touch unconquered or enemy occupied territories

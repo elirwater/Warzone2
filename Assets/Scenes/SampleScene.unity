@@ -561,7 +561,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   percentageOfScreenWidth: 12
-  agentDisplayPanelHeight: 70
+  agentDisplayPanelHeight: 90
   panelDisplayInfo: {fileID: 5108897235603767082, guid: 90cd2fdbc85248a45831f17827542a62,
     type: 3}
 --- !u!1 &1697349616
@@ -787,7 +787,7 @@ MonoBehaviour:
     alphaBetaAgent: 1
     miniMaxAgent: 0
     expectiMaxAgent: 0
-    MCTSAgent: 4
+    MCTSAgent: 1
   analytics:
     analyticsOn: 0
     numSimulatedGames: 10
