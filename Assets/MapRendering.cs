@@ -291,7 +291,7 @@ public class MapRendering : MonoBehaviour
     /**
      * Updates the right hand side panel with info such as the players, their troops, and their player colors
      */
-    public void updateRightSidePanel(List<Agents> partialPlayerInfo, string currentPlayerName)
+    public void updateRightSidePanel(List<Agents> partialPlayerInfo, int roundNumber)
     {
         List<(string, int, Color)> rightHandInfo = new List<(string, int, Color)>();
 
@@ -307,7 +307,7 @@ public class MapRendering : MonoBehaviour
             rightHandInfo.Add((agent.agentName, agent.getArmies(), agentColor));
         }
         
-        FindObjectOfType<RightSideBar>().updateDisplayInfo(rightHandInfo, currentPlayerName);
+        FindObjectOfType<RightSideBar>().updateDisplayInfo(rightHandInfo, roundNumber);
         
         
     }

@@ -38,7 +38,7 @@ public class RightSideBar : MonoBehaviour
     /**
      * Called by the rendering class to update the info for the various players
      */
-    public void updateDisplayInfo(List<(string, int, Color)> currentPlayerInfo, string currentPlayer)
+    public void updateDisplayInfo(List<(string, int, Color)> currentPlayerInfo, int roundNum)
     {
         // First need to destroy the previous panels (might be smarter to do this only when an agent dies / the game restarts...)
         if (agentDisplayPanels != null)
@@ -49,10 +49,9 @@ public class RightSideBar : MonoBehaviour
             }
         }
         agentDisplayPanels = new List<GameObject>();  
-
-        // Current player tag
+        
         instantiateAgentUIPanels(Screen.height - agentDisplayPanelHeight);
-        agentDisplayPanels[0].GetComponent<Text>().text = "Current Player: " + currentPlayer;
+        agentDisplayPanels[0].GetComponent<Text>().text = "Round Number: " + roundNum;
         
 
 

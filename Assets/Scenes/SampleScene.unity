@@ -784,10 +784,10 @@ MonoBehaviour:
     dfsAgent: 0
     bfsAgent: 0
     testingAgent: 0
-    alphaBetaAgent: 1
+    alphaBetaAgent: 0
     miniMaxAgent: 0
     expectiMaxAgent: 0
-    MCTSAgent: 1
+    MCTSAgent: 2
   analytics:
     analyticsOn: 0
     numSimulatedGames: 10

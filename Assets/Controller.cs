@@ -23,6 +23,9 @@ public class Controller : MonoBehaviour
     private bool isGameOver;
 
     private PlayerAgent player;
+    private bool playerPlaying;
+
+    private int roundNum;
     
 
     /**
@@ -77,6 +80,8 @@ public class Controller : MonoBehaviour
     private void Start()
     {
         onGameUIStart = false;
+        playerPlaying = false;
+        FindObjectOfType<HomeScreen>().startGame();
     }
 
 
@@ -94,7 +99,8 @@ public class Controller : MonoBehaviour
         FindObjectOfType<LeftSideBar>().instantiateUI();
         FindObjectOfType<RightSideBar>().instantiateUI();
         FindObjectOfType<ButtonManager>().setupUI();
-        FindObjectOfType<HomeScreen>().startGame();
+        
+        FindObjectOfType<HomeScreen>().destroyHS();
         
         
         if (analytics.analyticsOn)
@@ -119,6 +125,8 @@ public class Controller : MonoBehaviour
     {
 
         isGameOver = false;
+        playerPlaying = false;
+        roundNum = 0;
 
         mapState = FindObjectOfType<MapGeneration>();
         mapRendering = FindObjectOfType<MapRendering>();
@@ -169,13 +177,11 @@ public class Controller : MonoBehaviour
      * dispatches the appropriate gamestate/player info (such as colors) to the right side panel class
      * Needs to be in the controller class so the display info knows who's turn it is
      */
-    private void updateInfo(string currentPlayerName)
+    private void updateInfo()
     {
         //TODO: maybe don't pass the agents across like this, perhaps just their info
-        mapRendering.updateRightSidePanel(new List<Agents>(agents), currentPlayerName);
+        mapRendering.updateRightSidePanel(new List<Agents>(agents), roundNum);
     }
-    
-    
     
     /**
      * Checks if the game is over every tick and whether the spacebar has been pressed to manually advance the game
@@ -185,7 +191,7 @@ public class Controller : MonoBehaviour
         // If the game hasn't been started, wait until the input key is pressed and continue to not evaluate the rest of the method
         if (!onGameUIStart)
         {
-            if (Input.GetKeyDown("space") && !isGameOver)
+            if (Input.GetKeyDown("space"))
             {
                 onGameUIStart = true;
                 startGame();
@@ -195,24 +201,27 @@ public class Controller : MonoBehaviour
                 return;   
             }
         }
-        
-        
-        // A given round is progressed by hitting the space key (for now)
-        if (Input.GetKeyDown("space") && !isGameOver)
+
+        // Instead of using the space bar to progress, rounds are automatically progressed when the player is done
+        // (and after the agent(s) make a move)
+        if (agentData.player && !playerPlaying)
         {
-            if (agentData.player)
-            {
-                nextPlayerRound();
-            } 
-            else
-            {
-                nextAgentRound();   
-            }
+            roundNum += 1;
+            playerPlaying = true;
+            nextPlayerRound();
         }
 
-        if (isGameOver)
+        if (!agentData.player)
         {
-            initializeGame();
+            // A given round is progressed by hitting the space key (for now)
+            if (Input.GetKeyDown("space") && !isGameOver)
+            {
+                nextAgentRound();
+            } 
+            if (isGameOver)
+            {
+                initializeGame();
+            }
         }
     }
     
@@ -221,11 +230,11 @@ public class Controller : MonoBehaviour
     {
         yield return new WaitUntil(() => FindObjectOfType<PlayerController>().playerRoundOver());
         nextAgentRound();
+        playerPlaying = false;
     }
 
 
-
-
+    
 
     private void nextPlayerRound()
     {
@@ -234,7 +243,8 @@ public class Controller : MonoBehaviour
 
         FindObjectOfType<PlayerController>().playerNextRound();
         
-        updateInfo(player.agentName);
+        // SHOULDN'T BE HERE
+        updateInfo();
         
         StartCoroutine(AsynchronousPlayerWait());
     }
@@ -260,7 +270,8 @@ public class Controller : MonoBehaviour
         {
             agent.nextRound();
             
-            updateInfo(agent.agentName);
+            // SHOULDN'T be here
+            updateInfo();
             
             List<DeployMoves> deployMovesTestingAgent = agent.generateDeployMoves();
             List<(string, List<DeployMoves>)> deployMoves = new List<(string, List<DeployMoves>)>();
@@ -314,7 +325,8 @@ public class Controller : MonoBehaviour
         gameStateObj.updateRegionalOccupiers();
         if (gameStateObj.checkGameOverConditions())
         {
-            print("GAME OVER");
+            FindObjectOfType<HomeScreen>().endGame(gameStateObj.findWinner());
+            onGameUIStart = false;
             isGameOver = true;
         } 
         

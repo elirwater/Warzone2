@@ -19,9 +19,7 @@ public class PlayerController : MonoBehaviour
     
     private string selectedFromTerritory;
     private string selectedToTerritory;
-    
-    
-    private GameState gameStateObj;
+
     
     //public GameObject targetedButton;
     
@@ -44,14 +42,7 @@ public class PlayerController : MonoBehaviour
     {
         player = playerAgent;
     }
-
-    /**
-     * CALLED BY the controller to give the player controller access to the current gameState
-     */
-    public void updateGameStateObj(GameState g)
-    {
-        gameStateObj = g;
-    }
+    
     
 
     private void Start()
