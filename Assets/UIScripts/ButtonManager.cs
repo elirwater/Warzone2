@@ -183,6 +183,12 @@ public class ButtonManager : MonoBehaviour
     {
         troopArmySlider.GetComponent<Slider>().maxValue = numArmies;
     }
+
+
+    public void setSliderValue(int numArmies)
+    {
+        troopSlider.GetComponent<Slider>().value = numArmies;
+    }
     
     /**
      * Modifies the deployTo button to display which territory was selected to deploy to
@@ -292,7 +298,7 @@ public class ButtonManager : MonoBehaviour
     
     public void onPrevButtonPress()
     {
-        
+        FindObjectOfType<PlayerController>().onPrev();
     }
     
     public void onNextButtonPress()

@@ -20,6 +20,8 @@ public class PlayerController : MonoBehaviour
     private string selectedFromTerritory;
     private string selectedToTerritory;
 
+
+    private int numMoves;
     
     //public GameObject targetedButton;
     
@@ -41,6 +43,7 @@ public class PlayerController : MonoBehaviour
     public void instantiatePlayer(PlayerAgent playerAgent)
     {
         player = playerAgent;
+        numMoves = 0;
     }
     
     
@@ -202,8 +205,9 @@ public class PlayerController : MonoBehaviour
 
     public void onNext()
     {
+        
         int armies = FindObjectOfType<ButtonManager>().getSliderArmies();
-
+        
         if (onDeployButtonPressed)
         {
             player.addDeployMove(selectedToTerritory, armies);
@@ -218,7 +222,7 @@ public class PlayerController : MonoBehaviour
         //Clear all the button text fields when the next button is pressed
         selectedTerritory = "";
         buttonSelectionController();
-
+        
         // Need to clear both buttons if in attack mode
         if (onAttackButtonPressed)
         {
@@ -227,13 +231,30 @@ public class PlayerController : MonoBehaviour
             targetField = selectedButton.attackTo;
             buttonSelectionController();
         }
-
+        
         targetField = selectedButton.none;
         buttonSelectionController();
 
     }
     
-    //TODO: implement prev
+    //TODO: prev should work for both attack and deploy
+
+
+    public void onPrev()
+    {
+        AttackMoves a = player.prev();
+        targetField = selectedButton.attackFrom;
+        selectedTerritory = a.fromTerritory;
+        buttonSelectionController();
+        
+        targetField = selectedButton.attackTo;
+        selectedTerritory = a.toTerritory;
+        buttonSelectionController();
+        
+        FindObjectOfType<ButtonManager>().setSliderValue(a.armies);
+        
+
+    }
     
     
 

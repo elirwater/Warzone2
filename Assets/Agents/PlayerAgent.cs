@@ -13,6 +13,8 @@ public class PlayerAgent : Agents
     // Created to keep track of how many armies can be used to attack with from a given territory (if you 
     // are attacking multiple territories from one initial territory)
     private  IDictionary<string, int> remainingArmiesPerTerritory;
+
+    private int moveListPos;
     
     
     public PlayerAgent()
@@ -25,6 +27,7 @@ public class PlayerAgent : Agents
         playerCreatedDeployMoves = new List<DeployMoves>();
         playerCreatedAttackMoves = new List<AttackMoves>();
         remainingArmiesPerTerritory = new Dictionary<string, int>();
+        moveListPos = 0;
     }
 
 
@@ -69,15 +72,44 @@ public class PlayerAgent : Agents
     
     public void addAttackMove(string territoryFrom, string territoryTo, int armies)
     {
-        //TODO: need to check that it doesn't already exist!
-        playerCreatedAttackMoves.Add(new AttackMoves(territoryFrom, territoryTo, armies));
-        
+        if (!playerCreatedAttackMoves.Contains(new AttackMoves(territoryFrom, territoryTo, armies)))
+        {
+            playerCreatedAttackMoves.Add(new AttackMoves(territoryFrom, territoryTo, armies));
+            moveListPos += 1;
+        }
+
         // Subtract the number of armies used to attack from the total armies you can still attack with from this territory
         if (remainingArmiesPerTerritory.ContainsKey(territoryFrom))
         {
             remainingArmiesPerTerritory[territoryFrom] -= armies;   
         }
     }
+
+    
+
+
+    public AttackMoves prev()
+    {
+
+        if (playerCreatedAttackMoves.Count == moveListPos)
+        {
+            return playerCreatedAttackMoves[0];
+        }
+        
+        AttackMoves info = playerCreatedAttackMoves[moveListPos - 1];
+        //We first wipe this move from the list of moves (so it can be modified and added again)
+        playerCreatedAttackMoves.RemoveAt(moveListPos - 1);
+
+        
+        
+        //TODO: NEEDS TO BE FIXED: armies not being replenished to territory
+        remainingArmiesPerTerritory[playerCreatedAttackMoves[moveListPos - 1].fromTerritory] +=
+            playerCreatedAttackMoves[moveListPos - 1].armies;
+        
+        moveListPos -= 1;
+        return info;
+    }
+    
 
     public void removeAttackMove(int idx)
     {
