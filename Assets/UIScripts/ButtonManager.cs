@@ -5,6 +5,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/**
+ * Class responsible for managing and delegating all button related tasks
+ */
 public class ButtonManager : MonoBehaviour
 {
     
@@ -29,17 +32,14 @@ public class ButtonManager : MonoBehaviour
     
     
     public int buttonHeight;
-    
     private int sideBarWidth;
     private GameObject parentObject;
     
     
-    
-    private void Start()
-    {
-    }
 
-
+    /**
+     * Instantiates the primary UI, including the 3 primary buttons if there exists a player in the game
+     */
     public void setupUI()
     {
         // Disables this script unless there exits a player in the game AND the game has been started
@@ -74,10 +74,11 @@ public class ButtonManager : MonoBehaviour
         }
     }
 
-
+    /**
+     *  Updates the textual component of the troop slider when the player is scrolling with it
+     */
     private void Update()
     {
-        // Updates the textual component of the troop slider when the player is scrolling with it
         if (troopSliderText != null && troopArmySlider != null)
         {
             int armies = (int) troopArmySlider.GetComponent<Slider>().value;
@@ -185,6 +186,9 @@ public class ButtonManager : MonoBehaviour
     }
 
 
+    /**
+     * Sets the slider value to be the number of armies passed in (used by prev to restore previous set of moves)
+     */
     public void setSliderValue(int numArmies)
     {
         troopSlider.GetComponent<Slider>().value = numArmies;
@@ -270,6 +274,9 @@ public class ButtonManager : MonoBehaviour
     }
 
 
+    /**
+     * Modifies the deploy button to be red if pressed, same ones below
+     */
     public void onDeployToButtonPress()
     {
         Button b = deployUIToButton.GetComponent<Button>();
@@ -301,6 +308,9 @@ public class ButtonManager : MonoBehaviour
         FindObjectOfType<PlayerController>().onPrev();
     }
     
+    /**
+     * Sets the buttons to be grey depending on the interface set when next is clicked (mainly for UI reasons)
+     */
     public void onNextButtonPress()
     {
         FindObjectOfType<PlayerController>().onNext();

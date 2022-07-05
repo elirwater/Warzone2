@@ -4,6 +4,9 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
+/**
+ * Class responsible for the stuff displayed on the left side bar
+ */
 public class LeftSideBar : MonoBehaviour
 {
 
@@ -34,15 +37,9 @@ public class LeftSideBar : MonoBehaviour
         panelDisplayInfoRectT.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, backgroundPanelWidth);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-
-
-
+    /**
+     * Displays the information of a territory the user has clicked on
+     */
     public void displayTerritoryInfo(string name, string occupier, string region, int RegionalBonusValue, int numNeighbors, int numArmies)
     {
         Text inputText = panelDisplayInfo.GetComponent<Text>();

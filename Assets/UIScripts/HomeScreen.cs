@@ -4,6 +4,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/**
+ * Class responsible for the main screen UI (such as start screen and end screen)
+ */
 public class HomeScreen : MonoBehaviour
 {
     private GameObject parentCanvas;
@@ -12,6 +15,9 @@ public class HomeScreen : MonoBehaviour
     private GameObject hsText;
     
 
+    /**
+     * Instantiates the start screen UI
+     */
     public void startGame()
     {
         parentCanvas = GameObject.Find("PrimaryCanvas");
@@ -19,12 +25,17 @@ public class HomeScreen : MonoBehaviour
         hsText.GetComponent<TMP_Text>().text = "PRESS SPACE TO START";
     }
 
+    /**
+     * Cleans the home screen when the game begins (doesn't remove canvas because that is used for the end screen)
+     */
     public void destroyHS()
     {
         hsText.GetComponent<TMP_Text>().text = ""; 
     }
     
-
+    /**
+     * Displays the winner of the game
+     */
     public void endGame(string winningAgent)
     {
         parentCanvas = GameObject.Find("PrimaryCanvas");

@@ -4,6 +4,9 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
+/**
+ * Class responsible for the right side bar display
+ */
 public class RightSideBar : MonoBehaviour
 {
     
@@ -19,7 +22,9 @@ public class RightSideBar : MonoBehaviour
     
     
     
-
+    /**
+     * Instantiates the right side bar game components
+     */
     public void instantiateUI()
     {
         backgroundPanel = GameObject.Find("BackgroundPanelRight");
@@ -54,7 +59,6 @@ public class RightSideBar : MonoBehaviour
         agentDisplayPanels[0].GetComponent<Text>().text = "Round Number: " + roundNum;
         
 
-
         int i = 0;
         foreach (var agentInfo in currentPlayerInfo)
         {
@@ -67,17 +71,17 @@ public class RightSideBar : MonoBehaviour
             s.Append("\n");
             s.Append("Armies: " + agentInfo.Item2);
             
-            
             inputText.text = s.ToString();
             inputText.color = agentInfo.Item3;
-            
             i += 1;
         }
     }
 
     
     
-    //TODO: might be smarter to only call this when an agent dies or the round is over
+    /**
+     * Adds panels each time it is called to display certain things about each agent
+     */
     private void instantiateAgentUIPanels(int yPos)
     {
         GameObject newPanel = Instantiate(panelDisplayInfo,

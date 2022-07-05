@@ -93,13 +93,9 @@ public class Controller : MonoBehaviour
         FindObjectOfType<MapRendering>().setupMapVisuals();
         
         initializeGame();
-        
-        //TODO: make a UI managing class, this is getting messy
-
         FindObjectOfType<LeftSideBar>().instantiateUI();
         FindObjectOfType<RightSideBar>().instantiateUI();
         FindObjectOfType<ButtonManager>().setupUI();
-        
         FindObjectOfType<HomeScreen>().destroyHS();
         
         
@@ -179,7 +175,6 @@ public class Controller : MonoBehaviour
      */
     private void updateInfo()
     {
-        //TODO: maybe don't pass the agents across like this, perhaps just their info
         mapRendering.updateRightSidePanel(new List<Agents>(agents), roundNum);
     }
     
@@ -235,17 +230,16 @@ public class Controller : MonoBehaviour
 
 
     
-
+    /**
+     * Calls the next player round, which interacts with the player controller and established a Coroutine that locks
+     * the rest of the logic on this thread until the player has finished their moves
+     */
     private void nextPlayerRound()
     {
         gameStateObj.nextRound();
         player.nextRound();
-
         FindObjectOfType<PlayerController>().playerNextRound();
-        
-        // SHOULDN'T BE HERE
         updateInfo();
-        
         StartCoroutine(AsynchronousPlayerWait());
     }
 
@@ -292,8 +286,10 @@ public class Controller : MonoBehaviour
 
         if (!analytics.analyticsOn)
         {
-            // TODO: should be offloaded to the GameState class -> dumb to check it here (just do it in the updateAttack method) and make it a list with a method to grab that list 
-
+            // Adds territories that are updated to a list which is used by the rendering class to selectively
+            // redraw certain elements of the map, instead of the entire map (which is quite costly depending on the 
+            // resolution)
+            // TODO: should be offloaded to the GameState class
             List<string> territoriesToBeUpdated = new List<string>();
             
             foreach ((string, List<AttackMoves>) attackMoveByAgent in attackMoves)

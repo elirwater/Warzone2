@@ -234,9 +234,7 @@ public class MapRendering : MonoBehaviour
         
         return territoryName;
     }
-
-
- 
+    
 
     /**
      * CALLED BY the player controller when selecting a territory to deploy x number of troops troops to,

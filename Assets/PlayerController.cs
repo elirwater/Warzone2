@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 
+/**
+ * Class responsible for all interactions between the physical player and its representation class playerAgent
+ */
 public class PlayerController : MonoBehaviour
 {
 
@@ -19,13 +22,12 @@ public class PlayerController : MonoBehaviour
     
     private string selectedFromTerritory;
     private string selectedToTerritory;
-
-
+    
     private int numMoves;
-    
-    //public GameObject targetedButton;
-    
-    
+
+    /**
+     *  Which button is currently selected represented in an easier to use fashion
+     */
     private enum selectedButton
     {
         none,
@@ -34,8 +36,7 @@ public class PlayerController : MonoBehaviour
         attackTo
     }
     
-
-
+    
 
     /**
      * CALLED BY the controller to setup the player with the playerAgent instance
@@ -47,7 +48,9 @@ public class PlayerController : MonoBehaviour
     }
     
     
-
+    /**
+     * Enables the player controller and sets up the necessary parameters
+     */
     private void Start()
     {
         // Disables this script unless there exits a player in the game (stops the update method and all other methods from
@@ -63,31 +66,41 @@ public class PlayerController : MonoBehaviour
     
     
 
-
+    /**
+     * Handles the logic of the player clicking
+     */
     private void Update()
     {
+        // If the player has clicked
         if (Input.GetMouseButtonDown(0))
         {
+            // We find the territory the player has clicked on (using the map rendering class)
             selectedTerritory = FindObjectOfType<MapRendering>()
                 .getTerritoryFromMousePos(Camera.main.ScreenToWorldPoint(Input.mousePosition));
 
-            // This stuff is easy to break, needs to be changed
+            // If the selected territory isn't out of bounds, proceed
             if (selectedTerritory != "outOfBounds")
             {
-
+                
+                // We establish whether the player owns this territory
+                // (used to figure out whether the displays should allow deployment to this territory)
                 bool playerOwnsTerritory = player.playerOwnsTerritory(selectedTerritory);
                 
                 int maxArmies = 0;
                 
+                // If the selected button is deployTO
                 if (targetField == selectedButton.deployTo && playerOwnsTerritory)
                 {
+                    // We find the number of armies the player can deploy in total, then we update the max value of
+                    // of the slider, and then we call the button logic controller
                     maxArmies = player.getArmies();
                     FindObjectOfType<ButtonManager>().updateSliderMaxValue(maxArmies); 
                     buttonSelectionController();
                     return;
                 } 
                 
-                
+                // Now we set the max armies to be the number of armies in the selected territory, because both of the
+                // following clauses are for the attacking UI
                 maxArmies = FindObjectOfType<MapRendering>().getArmiesInTerritory(selectedTerritory);
                 
                 // We check if we are in attack mode, and if we are, we grab the number of armies we have already deployed as well
@@ -115,7 +128,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
+    /**
+     * Advances the player to the next round, called by the controller
+     */
     public void playerNextRound()
     {
         onCommitButtonPressed = false;
@@ -124,19 +139,21 @@ public class PlayerController : MonoBehaviour
         player.playerNextRound();
     }
 
-    
-
-    // Controller instantiates a Coroutine and waits until this method evaluates true
+    /**
+     * Primary controller instantiates a Coroutine that waits until this method evaluates to be true,
+     * which is only the case if the player has clicked the commitButton, and then the rest of the controller logic
+     * proceeds
+     */
     public bool playerRoundOver()
     {
         return onCommitButtonPressed;
     }
     
-
+    /**
+     * Handles the basic logic of the primary buttons
+     */
     private void buttonSelectionController()
     {
-        //TODO:  Pass this back to the player agent as well
-        
         switch(targetField) 
         {
             case selectedButton.deployTo:
@@ -166,12 +183,6 @@ public class PlayerController : MonoBehaviour
         onDeployButtonPressed = true;
         onAttackButtonPressed = false;
     }
-    
-    
-    
-    //TODO: need to keep track of armies already deployed to, so you can attack with all of those troops (but they haven't actually been deployed yet so just use a dict here
-    
-    
 
     public void onAttackButtonPress()
     {
@@ -186,8 +197,7 @@ public class PlayerController : MonoBehaviour
         onCommitButtonPressed = true;
     }
 
-
-
+    
     public void onDeployToButtonPress()
     {
         targetField = selectedButton.deployTo;
@@ -203,6 +213,9 @@ public class PlayerController : MonoBehaviour
         targetField = selectedButton.attackTo;
     }
 
+    /**
+     * Sends information to the playerAgent when the next button is pressed, such as the move the player selected
+     */
     public void onNext()
     {
         
@@ -217,7 +230,6 @@ public class PlayerController : MonoBehaviour
             player.addAttackMove(selectedFromTerritory, selectedToTerritory, armies);
         }
         
-        //TODO: re-do this implementation, its fairly messy
         
         //Clear all the button text fields when the next button is pressed
         selectedTerritory = "";
@@ -234,10 +246,7 @@ public class PlayerController : MonoBehaviour
         
         targetField = selectedButton.none;
         buttonSelectionController();
-
     }
-    
-    //TODO: prev should work for both attack and deploy
 
 
     public void onPrev()
@@ -252,10 +261,5 @@ public class PlayerController : MonoBehaviour
         buttonSelectionController();
         
         FindObjectOfType<ButtonManager>().setSliderValue(a.armies);
-        
-
     }
-    
-    
-
 }

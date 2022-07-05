@@ -4,6 +4,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/**
+ * Class responsible for abstracting various UI features that are used frequently
+ */
 public class UISpawner : MonoBehaviour
 {
     
