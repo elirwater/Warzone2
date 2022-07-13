@@ -23,8 +23,22 @@ public class HomeScreen : MonoBehaviour
         parentCanvas = GameObject.Find("PrimaryCanvas");
         hsText = Instantiate(homeScreenText, new Vector3(Screen.width / 2, Screen.height / 2, 1), Quaternion.identity, parentCanvas.transform);
         hsText.GetComponent<TMP_Text>().text = "PRESS SPACE TO START";
+        
+        
+       // NEEDS TO READ IN PREVIOUS CONFIGURATION OF AGENTS FOR A DEfAULT START FROM CONFIG CLASS 
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    // EVERYTHING BELOW HERE WILL NEED TO BE CHANGED!
+    
+    
     /**
      * Cleans the home screen when the game begins (doesn't remove canvas because that is used for the end screen)
      */
