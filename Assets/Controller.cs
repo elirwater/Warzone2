@@ -82,6 +82,9 @@ public class Controller : MonoBehaviour
         onGameUIStart = false;
         playerPlaying = false;
         FindObjectOfType<HomeScreen>().startGame();
+        
+        
+        
     }
 
 

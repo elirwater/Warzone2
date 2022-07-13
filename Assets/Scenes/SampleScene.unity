@@ -548,6 +548,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   homeScreenText: {fileID: 6972511393416133727, guid: 3d61f9fd63e4b8d469e671486fb1f2d9,
     type: 3}
+  homeScreenAgentText: {fileID: 8222811445948629369, guid: 567f1de14ee31e348b6976bf2a85e4db,
+    type: 3}
 --- !u!114 &1627808438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -712,6 +714,7 @@ GameObject:
   - component: {fileID: 1991910617}
   - component: {fileID: 1991910611}
   - component: {fileID: 1991910614}
+  - component: {fileID: 1991910613}
   m_Layer: 0
   m_Name: PrimaryController
   m_TagString: Untagged
@@ -745,6 +748,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 1, y: 0, z: 0}
+--- !u!114 &1991910613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991910610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b1bc6e985944c54191da2c9fbf57087, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  naiveAgent: 0
+  dfsAgent: 0
+  bfsAgent: 0
+  testingAgent: 0
+  alphaBetaAgent: 0
+  miniMaxAgent: 0
+  expectiMaxAgent: 0
+  MCTSAgent: 0
 --- !u!114 &1991910614
 MonoBehaviour:
   m_ObjectHideFlags: 0
